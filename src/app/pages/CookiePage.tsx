@@ -26,7 +26,7 @@ const CookiePage = () => {
       } catch (error) {
         console.error(error);
         alert("소셜 로그인 실패");
-        navigate("/login");
+        navigate("/test/login");
       }
     };
 

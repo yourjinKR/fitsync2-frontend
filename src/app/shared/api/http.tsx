@@ -22,6 +22,8 @@ const tokenStore = {
   },
 };
 
+// TODO : 배포시 env-production을 통해 불러오기
+
 /**
  * 일반 API 호출용 (B안)
  */
@@ -111,7 +113,7 @@ api.interceptors.response.use(
         return api(originalConfig);
       } catch (refreshErr) {
         tokenStore.clear();
-        window.location.href = "/login";
+        window.location.href = "/test/login";
         return Promise.reject(refreshErr);
       } finally {
         isRefreshing = false;
