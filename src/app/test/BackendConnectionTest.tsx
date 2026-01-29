@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { http } from '../api/http';
+import { api } from '../shared/api/http';
 
 type HealthCheck = {
   connected : string
@@ -12,7 +12,10 @@ const BackendConnectionTest = () => {
   useEffect(() => {
     const run = async () => {
       try {
-        const { data } = await http.get("/check");
+        const response = await api.get("/api/check");
+        const data = response.data;
+        console.log(response);
+        
         setHealthCheck(data);
       } catch (err) {
         console.error(err);
