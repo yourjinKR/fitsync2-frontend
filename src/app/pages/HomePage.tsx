@@ -1,5 +1,5 @@
 import styled from "styled-components";
-import BackendConnectionTest from "../shared/ui/BackendConnectionTest";
+import BackendConnectionTest from "../test/BackendConnectionTest";
 
 const Wrap = styled.main`
   padding: 24px;
