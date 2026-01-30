@@ -1,6 +1,7 @@
 import axios, { AxiosError, type AxiosInstance, type InternalAxiosRequestConfig } from "axios";
 
 type RetryConfig = InternalAxiosRequestConfig & { _retry?: boolean };
+const BACKEND_API_BASE_URL = import.meta.env.VITE_BACKEND_API_BASE_URL;
 
 type JWTResponse = {
   accessToken: string;
@@ -28,7 +29,7 @@ const tokenStore = {
  * 일반 API 호출용 (B안)
  */
 export const api: AxiosInstance = axios.create({
-  baseURL: "", // Vite proxy 사용
+  baseURL: BACKEND_API_BASE_URL, // Vite proxy 사용
   timeout: 15_000,
   withCredentials: false, // B안: 기본은 쿠키 불필요
 });
@@ -37,7 +38,7 @@ export const api: AxiosInstance = axios.create({
  * 인증 전용 (인터셉터 없음)
  */
 export const authApi: AxiosInstance = axios.create({
-  baseURL: "",
+  baseURL: BACKEND_API_BASE_URL,
   timeout: 15_000,
   withCredentials: false,
 });
