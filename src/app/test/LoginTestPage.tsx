@@ -11,6 +11,8 @@ const LoginTestPage = () => {
   return (
     <div>
       <button onClick={() => handleSocialLogin("NAVER")}>Naver로 계속하기</button>
+      <button onClick={() => handleSocialLogin("GOOGLE")}>Google로 계속하기</button>
+      <button onClick={() => handleSocialLogin("KAKAO")}>Kakao로 계속하기</button>
     </div>
   );
 };
