@@ -1,4 +1,4 @@
-import type { Gender, LocalDateString } from "../member/type";
+import type { Gender, LocalDateString } from "./member";
 
 export type UserWithProfileResponse = {
   userId : number,
