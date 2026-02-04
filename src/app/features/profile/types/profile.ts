@@ -1,4 +1,19 @@
-import type { Gender, LocalDateString } from "./member";
+import type { Gender, LocalDateString } from "../../user/types/member";
+
+export type UserProfileRequest = {
+  userId: number;
+  gender: Gender;
+  birth: LocalDateString;
+  workoutGoals: WorkoutGoal[];
+  exerciseCategories: ExerciseCategory[];
+  disease?: string;
+  height?: number;
+  weight?: number;
+  skeletalMuscleMass?: number;
+  bodyFatMass?: number;
+  bodyFatPercentage?: number;
+  bmi?: number;
+};
 
 export type UserWithProfileResponse = {
   userId : number,
