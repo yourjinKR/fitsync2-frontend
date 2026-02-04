@@ -31,7 +31,7 @@ const tokenStore = {
 export const api: AxiosInstance = axios.create({
   baseURL: BACKEND_API_BASE_URL, // Vite proxy 사용
   timeout: 15_000,
-  withCredentials: false, // B안: 기본은 쿠키 불필요
+  withCredentials: true
 });
 
 /**
@@ -40,7 +40,7 @@ export const api: AxiosInstance = axios.create({
 export const authApi: AxiosInstance = axios.create({
   baseURL: BACKEND_API_BASE_URL,
   timeout: 15_000,
-  withCredentials: false,
+  withCredentials: true,
 });
 
 // ----- request interceptor: Bearer 자동 부착 -----
