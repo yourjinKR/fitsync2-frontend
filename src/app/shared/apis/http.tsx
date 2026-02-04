@@ -1,5 +1,14 @@
 import axios, { AxiosError, type AxiosInstance, type InternalAxiosRequestConfig } from "axios";
 
+/**
+ * TODO :
+ * refresh 실패 시 대기 큐 reject 처리(영구 pending 방지)
+ * refreshToken 저장 방식 재검토(가능하면 HttpOnly 쿠키로 전환)
+ * axios 유틸에서 window.location.href 제거 → 상위 레이어(라우터/전역 상태)에서 처리
+ * 401 중 TOKEN_EXPIRED 같은 케이스만 refresh(서버 error code 기반 분기)
+ * (옵션) 네트워크/5xx만 짧은 재시도(backoff), 비멱등 요청은 제외
+ */
+
 type RetryConfig = InternalAxiosRequestConfig & { _retry?: boolean };
 const BACKEND_API_BASE_URL = import.meta.env.VITE_BACKEND_API_BASE_URL;
 
