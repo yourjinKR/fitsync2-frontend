@@ -1,11 +1,11 @@
-import { api, FitSyncApiError } from "../http"
+import { api, ApiError } from "../http"
 
 export const getUserMyProfile = async (userId: number) => {
   try {
     const response = await api.get(`/api/user/profile/${userId}`);
     return response.data;
   } catch (error) {
-    if (error instanceof FitSyncApiError) {
+    if (error instanceof ApiError) {
 
       if (error.code === "NOT_FOUND") {
         console.log("못 찾음");

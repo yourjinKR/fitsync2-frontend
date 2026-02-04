@@ -23,7 +23,7 @@ export interface ApiErrorScheme {
 }
 
 // AxiosError를 감싸서 편하게 쓸 수 있게 도와주는 커스텀 에러 클래스
-export class FitSyncApiError extends Error {
+export class ApiError extends Error {
   code: string;
   status?: number; // HTTP Status Code (e.g. 400, 404, 500)
   errors?: Array<{ field: string; message: string }>;
@@ -131,7 +131,7 @@ api.interceptors.response.use(
     const status = err.response?.status;
     const originalConfig = err.config as RetryConfig | undefined;
 
-    if (!originalConfig) return Promise.reject(new FitSyncApiError(err));
+    if (!originalConfig) return Promise.reject(new ApiError(err));
 
     const isRefreshCall = originalConfig.url?.includes("/jwt/refresh");
 
@@ -146,7 +146,7 @@ api.interceptors.response.use(
 
             api(originalConfig)
               .then(resolve)
-              .catch((e) => reject(new FitSyncApiError(e)));
+              .catch((e) => reject(new ApiError(e)));
           });
         });
       }
@@ -167,7 +167,7 @@ api.interceptors.response.use(
         window.location.href = "/test/login";
 
         if (axios.isAxiosError(refreshErr)) {
-          return Promise.reject(new FitSyncApiError(refreshErr));
+          return Promise.reject(new ApiError(refreshErr));
         }
 
         return Promise.reject(refreshErr);
@@ -177,6 +177,6 @@ api.interceptors.response.use(
       }
     }
 
-    return Promise.reject(new FitSyncApiError(err));
+    return Promise.reject(new ApiError(err));
   }
 );
