@@ -30,7 +30,7 @@ export class ApiError extends Error {
 
   constructor(error: AxiosError<unknown>) {
     super();
-    this.name = "FitSyncApiError";
+    this.name = "ApiError";
     this.originalError = error as AxiosError;
 
     const errorData = error.response?.data as ApiErrorScheme | undefined;
