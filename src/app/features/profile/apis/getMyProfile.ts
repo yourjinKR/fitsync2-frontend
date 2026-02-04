@@ -1,4 +1,4 @@
-import { api, ApiError } from "../http"
+import { api, ApiError } from "../../../shared/apis/http";
 
 export const getUserMyProfile = async (userId: number) => {
   try {

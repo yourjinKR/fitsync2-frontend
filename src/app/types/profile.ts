@@ -19,6 +19,11 @@ export type UserProfileDetailResponse = {
   exerciseCategories : Set<ExerciseCategory>,
   disease : string,
   height : number,
+  weight : number,
+  skeletalMuscleMass : number,
+  bodyFatMass : number,
+  bodyFatPercentage : number,
+  bmi : number
 };
 
 export type WorkoutGoal = 

@@ -1,6 +1,6 @@
 import React, { useEffect } from "react";
-import { getMyUserInfo } from "../shared/apis/member/getMyUserInfo";
-import { getUserMyProfile } from "../shared/apis/profile/getMyProfile";
+import { getMyUserInfo } from "../features/user/apis/getMyUserInfo";
+import { getUserMyProfile } from "../features/profile/apis/getMyProfile";
 
 const MyPage = () => {
   useEffect(() => {
