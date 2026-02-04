@@ -12,6 +12,51 @@ type RefreshRequest = {
   refreshToken: string;
 };
 
+// 백엔드의 ErrorResponse 구조와 일치시킴
+export interface ApiErrorScheme {
+  code: string;
+  message: string;
+  errors?: Array<{
+    field: string;
+    message: string;
+  }>;
+}
+
+// AxiosError를 감싸서 편하게 쓸 수 있게 도와주는 커스텀 에러 클래스
+export class FitSyncApiError extends Error {
+  code: string;
+  status?: number; // HTTP Status Code (e.g. 400, 404, 500)
+  errors?: Array<{ field: string; message: string }>;
+  originalError: AxiosError; // 원본 에러가 필요할 때를 대비
+
+  constructor(error: AxiosError<unknown>) {
+    super();
+    this.name = "FitSyncApiError";
+    this.originalError = error as AxiosError;
+
+    const errorData = error.response?.data as ApiErrorScheme | undefined;
+
+    // 1. 백엔드에서 내려준 정형화된 에러 응답이 있는 경우
+    if (errorData && errorData.code) {
+      this.message = errorData.message;
+      this.code = errorData.code;
+      this.errors = errorData.errors;
+      this.status = error.response?.status;
+    }
+    // 2. 네트워크 오류 등으로 response가 아예 없는 경우
+    else if (error.request) {
+      this.code = "NETWORK_ERROR";
+      this.message = "서버와 연결할 수 없습니다.";
+      this.status = 0;
+    } 
+    // 3. 그 외 알 수 없는 오류
+    else {
+      this.code = "UNKNOWN_ERROR";
+      this.message = error.message || "알 수 없는 오류가 발생했습니다.";
+    }
+  }
+}
+
 const tokenStore = {
   getAccess: () => localStorage.getItem("accessToken"),
   getRefresh: () => localStorage.getItem("refreshToken"),
@@ -86,7 +131,7 @@ api.interceptors.response.use(
     const status = err.response?.status;
     const originalConfig = err.config as RetryConfig | undefined;
 
-    if (!originalConfig) return Promise.reject(err);
+    if (!originalConfig) return Promise.reject(new FitSyncApiError(err));
 
     const isRefreshCall = originalConfig.url?.includes("/jwt/refresh");
 
@@ -98,7 +143,10 @@ api.interceptors.response.use(
           subscribeRefresh((newToken) => {
             originalConfig.headers = originalConfig.headers ?? {};
             originalConfig.headers.Authorization = `Bearer ${newToken}`;
-            api(originalConfig).then(resolve).catch(reject);
+
+            api(originalConfig)
+              .then(resolve)
+              .catch((e) => reject(new FitSyncApiError(e)));
           });
         });
       }
@@ -111,16 +159,24 @@ api.interceptors.response.use(
 
         originalConfig.headers = originalConfig.headers ?? {};
         originalConfig.headers.Authorization = `Bearer ${newToken}`;
-        return api(originalConfig);
+
+        return await api(originalConfig);
+
       } catch (refreshErr) {
         tokenStore.clear();
         window.location.href = "/test/login";
+
+        if (axios.isAxiosError(refreshErr)) {
+          return Promise.reject(new FitSyncApiError(refreshErr));
+        }
+
         return Promise.reject(refreshErr);
+
       } finally {
         isRefreshing = false;
       }
     }
 
-    return Promise.reject(err);
+    return Promise.reject(new FitSyncApiError(err));
   }
 );
