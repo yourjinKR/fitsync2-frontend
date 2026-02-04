@@ -22,12 +22,11 @@ export interface ApiErrorScheme {
   }>;
 }
 
-// AxiosError를 감싸서 편하게 쓸 수 있게 도와주는 커스텀 에러 클래스
 export class ApiError extends Error {
   code: string;
-  status?: number; // HTTP Status Code (e.g. 400, 404, 500)
+  status?: number;
   errors?: Array<{ field: string; message: string }>;
-  originalError: AxiosError; // 원본 에러가 필요할 때를 대비
+  originalError: AxiosError;
 
   constructor(error: AxiosError<unknown>) {
     super();
@@ -36,20 +35,19 @@ export class ApiError extends Error {
 
     const errorData = error.response?.data as ApiErrorScheme | undefined;
 
-    // 1. 백엔드에서 내려준 정형화된 에러 응답이 있는 경우
     if (errorData && errorData.code) {
       this.message = errorData.message;
       this.code = errorData.code;
       this.errors = errorData.errors;
       this.status = error.response?.status;
     }
-    // 2. 네트워크 오류 등으로 response가 아예 없는 경우
+
     else if (error.request) {
       this.code = "NETWORK_ERROR";
       this.message = "서버와 연결할 수 없습니다.";
       this.status = 0;
-    } 
-    // 3. 그 외 알 수 없는 오류
+    }
+
     else {
       this.code = "UNKNOWN_ERROR";
       this.message = error.message || "알 수 없는 오류가 발생했습니다.";
@@ -71,7 +69,7 @@ const tokenStore = {
 // TODO : 배포시 env-production을 통해 불러오기
 
 /**
- * 일반 API 호출용 (B안)
+ * 일반 API 호출용
  */
 export const api: AxiosInstance = axios.create({
   baseURL: BACKEND_API_BASE_URL, // Vite proxy 사용
