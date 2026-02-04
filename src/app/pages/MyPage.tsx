@@ -1,12 +1,15 @@
 import React, { useEffect } from "react";
-import { api } from "../shared/api/http";
+import { getMyUserInfo } from "../shared/apis/member/getMyUserInfo";
+import { getUserMyProfile } from "../shared/apis/profile/getMyProfile";
 
 const MyPage = () => {
   useEffect(() => {
     const fetchUser = async () => {
       try {
-        const res = await api.get("/api/user/me");
-        console.log("me:", res.data);
+        const user = await getMyUserInfo();
+        console.log("me:", user);
+        const profile = await getUserMyProfile(user.id);
+        console.log("profile : ", profile);
       } catch (e) {
         console.error(e);
       }

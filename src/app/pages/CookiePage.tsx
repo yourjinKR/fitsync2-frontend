@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { authApi } from "../shared/api/http";
+import { authApi } from "../shared/apis/http";
 
 type JWTResponse = {
   accessToken: string;
