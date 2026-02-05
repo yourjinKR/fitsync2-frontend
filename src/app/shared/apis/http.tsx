@@ -1,5 +1,14 @@
 import axios, { AxiosError, type AxiosInstance, type InternalAxiosRequestConfig } from "axios";
 
+/**
+ * TODO :
+ * refresh 실패 시 대기 큐 reject 처리(영구 pending 방지)
+ * refreshToken 저장 방식 재검토(가능하면 HttpOnly 쿠키로 전환)
+ * axios 유틸에서 window.location.href 제거 → 상위 레이어(라우터/전역 상태)에서 처리
+ * 401 중 TOKEN_EXPIRED 같은 케이스만 refresh(서버 error code 기반 분기)
+ * (옵션) 네트워크/5xx만 짧은 재시도(backoff), 비멱등 요청은 제외
+ */
+
 type RetryConfig = InternalAxiosRequestConfig & { _retry?: boolean };
 const BACKEND_API_BASE_URL = import.meta.env.VITE_BACKEND_API_BASE_URL;
 
@@ -11,6 +20,49 @@ type JWTResponse = {
 type RefreshRequest = {
   refreshToken: string;
 };
+
+// 백엔드의 ErrorResponse 구조와 일치시킴
+export interface ApiErrorScheme {
+  code: string;
+  message: string;
+  errors?: Array<{
+    field: string;
+    message: string;
+  }>;
+}
+
+export class ApiError extends Error {
+  code: string;
+  status?: number;
+  errors?: Array<{ field: string; message: string }>;
+  originalError: AxiosError;
+
+  constructor(error: AxiosError<unknown>) {
+    super();
+    this.name = "ApiError";
+    this.originalError = error as AxiosError;
+
+    const errorData = error.response?.data as ApiErrorScheme | undefined;
+
+    if (errorData && errorData.code) {
+      this.message = errorData.message;
+      this.code = errorData.code;
+      this.errors = errorData.errors;
+      this.status = error.response?.status;
+    }
+
+    else if (error.request) {
+      this.code = "NETWORK_ERROR";
+      this.message = "서버와 연결할 수 없습니다.";
+      this.status = 0;
+    }
+
+    else {
+      this.code = "UNKNOWN_ERROR";
+      this.message = error.message || "알 수 없는 오류가 발생했습니다.";
+    }
+  }
+}
 
 const tokenStore = {
   getAccess: () => localStorage.getItem("accessToken"),
@@ -26,12 +78,12 @@ const tokenStore = {
 // TODO : 배포시 env-production을 통해 불러오기
 
 /**
- * 일반 API 호출용 (B안)
+ * 일반 API 호출용
  */
 export const api: AxiosInstance = axios.create({
   baseURL: BACKEND_API_BASE_URL, // Vite proxy 사용
   timeout: 15_000,
-  withCredentials: false, // B안: 기본은 쿠키 불필요
+  withCredentials: true
 });
 
 /**
@@ -40,7 +92,7 @@ export const api: AxiosInstance = axios.create({
 export const authApi: AxiosInstance = axios.create({
   baseURL: BACKEND_API_BASE_URL,
   timeout: 15_000,
-  withCredentials: false,
+  withCredentials: true,
 });
 
 // ----- request interceptor: Bearer 자동 부착 -----
@@ -86,7 +138,7 @@ api.interceptors.response.use(
     const status = err.response?.status;
     const originalConfig = err.config as RetryConfig | undefined;
 
-    if (!originalConfig) return Promise.reject(err);
+    if (!originalConfig) return Promise.reject(new ApiError(err));
 
     const isRefreshCall = originalConfig.url?.includes("/jwt/refresh");
 
@@ -98,7 +150,10 @@ api.interceptors.response.use(
           subscribeRefresh((newToken) => {
             originalConfig.headers = originalConfig.headers ?? {};
             originalConfig.headers.Authorization = `Bearer ${newToken}`;
-            api(originalConfig).then(resolve).catch(reject);
+
+            api(originalConfig)
+              .then(resolve)
+              .catch((e) => reject(new ApiError(e)));
           });
         });
       }
@@ -111,16 +166,24 @@ api.interceptors.response.use(
 
         originalConfig.headers = originalConfig.headers ?? {};
         originalConfig.headers.Authorization = `Bearer ${newToken}`;
-        return api(originalConfig);
+
+        return await api(originalConfig);
+
       } catch (refreshErr) {
         tokenStore.clear();
         window.location.href = "/test/login";
+
+        if (axios.isAxiosError(refreshErr)) {
+          return Promise.reject(new ApiError(refreshErr));
+        }
+
         return Promise.reject(refreshErr);
+
       } finally {
         isRefreshing = false;
       }
     }
 
-    return Promise.reject(err);
+    return Promise.reject(new ApiError(err));
   }
 );

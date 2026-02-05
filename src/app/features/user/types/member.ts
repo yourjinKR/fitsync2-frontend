@@ -24,6 +24,11 @@ export type SocialProviderType =
 export type LocalDateTimeString = string;
 
 /**
+ * Java LocalDate
+ */
+export type LocalDateString = string;
+
+/**
  * 자체 회원가입/유저 생성 요청 DTO
  */
 export type UserRequest = {
@@ -36,6 +41,10 @@ export type UserRequest = {
   email: string;
   isSocial: boolean;
   socialProviderType: SocialProviderType | null;
+};
+
+export type UserResponse = {
+  id : number
 };
 
 /**

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { api } from '../shared/api/http';
+import { api } from '../shared/apis/http';
 
 type HealthCheck = {
   connected : string

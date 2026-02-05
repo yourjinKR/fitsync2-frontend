@@ -1,5 +1,5 @@
 import React from 'react';
-import type { SocialProviderType } from '../shared/api/member/type';
+import type { SocialProviderType } from '../types/member';
 
 const BACKEND_API_BASE_URL = import.meta.env.VITE_BACKEND_API_BASE_URL;
 
