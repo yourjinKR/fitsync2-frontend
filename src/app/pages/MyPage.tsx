@@ -20,6 +20,10 @@ const MyPage = () => {
     disease: "",
     height: undefined,
     weight: undefined,
+    skeletalMuscleMass: undefined,
+    bodyFatMass: undefined,
+    bodyFatPercentage: undefined,
+    bmi: undefined,
   });
 
   useEffect(() => {
@@ -208,6 +212,54 @@ const MyPage = () => {
               />
             </div>
 
+            <div>
+              <label htmlFor="skeletalMuscleMass">골격근량 : </label>
+              <input
+                id="skeletalMuscleMass"
+                type="number"
+                value={formData.skeletalMuscleMass || ""}
+                onChange={(e) =>
+                  setFormData(({...formData, skeletalMuscleMass: e.target.value ? parseFloat(e.target.value) : undefined}))
+                }
+              />
+            </div>
+
+            <div>
+              <label htmlFor="bodyFatMass">체지방량 : </label>
+              <input
+                id="bodyFatMass"
+                type="number"
+                value={formData.bodyFatMass || ""}
+                onChange={(e) =>
+                  setFormData(({...formData, bodyFatMass: e.target.value ? parseFloat(e.target.value) : undefined}))
+                }
+              />
+            </div>
+
+            <div>
+              <label htmlFor="bodyFatPercentage">채지방률 : </label>
+              <input
+                id="bodyFatPercentage"
+                type="number"
+                value={formData.bodyFatPercentage || ""}
+                onChange={(e) =>
+                  setFormData(({...formData, bodyFatPercentage: e.target.value ? parseFloat(e.target.value) : undefined}))
+                }
+              />
+            </div>
+
+            <div>
+              <label htmlFor="bmi">채지방률 : </label>
+              <input
+                id="bmi"
+                type="number"
+                value={formData.bmi || ""}
+                onChange={(e) =>
+                  setFormData(({...formData, bmi: e.target.value ? parseFloat(e.target.value) : undefined}))
+                }
+              />
+            </div>
+
             <button type="submit" disabled={isPending}>
               {isPending ? "생성 중..." : "프로필 생성"}
             </button>
@@ -235,6 +287,7 @@ const MyPage = () => {
         <p>생년월일: {data?.userProfile.birth}</p>
         <p>키: {data?.userProfile.height} cm</p>
         <p>체중: {data?.userProfile.weight} kg</p>
+        <p>골격근량: {data?.userProfile.skeletalMuscleMass} </p>
         <p>BMI: {data?.userProfile.bmi}</p>
         <p>체지방률: {data?.userProfile.bodyFatPercentage}%</p>
       </div>
