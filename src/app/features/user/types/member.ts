@@ -8,7 +8,7 @@ export type Gender =
 
 // 예: USER/TRAINER/ADMIN 등 (프로젝트 enum에 맞게 수정)
 export type UserRoleType =
-  | "USER"
+  | "MEMBER"
   | "TRAINER"
   | "ADMIN";
 
@@ -45,6 +45,22 @@ export type UserRequest = {
 
 export type UserResponse = {
   id : number
+};
+
+/**
+ * 자체 로그인 요청 DTO
+ */
+export type LoginRequest = {
+  loginId: string;
+  password: string;
+};
+
+/**
+ * 로그인 응답 DTO (JWT 토큰)
+ */
+export type LoginResponse = {
+  accessToken: string;
+  refreshToken?: string;
 };
 
 /**

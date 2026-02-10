@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { getMyUserInfo } from "../features/user/apis/getMyUserInfo";
 import { useMyProfileQuery } from "../features/profile/hooks/useMyProfileQuery";
 import { useCreateProfileMutation } from "../features/profile/hooks/useCreateProfileMutation";
+import LogoutButton from "../features/user/components/LogoutButton";
 import type { UserProfileRequest, WorkoutGoal, ExerciseCategory } from "../features/profile/types/profile";
 import type { Gender } from "../features/user/types/member";
 import { ApiError } from "../shared/apis/http";
@@ -20,6 +21,10 @@ const MyPage = () => {
     disease: "",
     height: undefined,
     weight: undefined,
+    skeletalMuscleMass: undefined,
+    bodyFatMass: undefined,
+    bodyFatPercentage: undefined,
+    bmi: undefined,
   });
 
   useEffect(() => {
@@ -35,7 +40,22 @@ const MyPage = () => {
     fetchUser();
   }, []);
 
-  if (isLoading) return <div>로딩...</div>;
+  if (isLoading) return (
+    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "20px" }}>
+      <h1>로딩 중...</h1>
+      <LogoutButton
+        style={{
+          padding: "8px 16px",
+          backgroundColor: "#dc3545",
+          color: "white",
+          border: "none",
+          borderRadius: "4px",
+          cursor: "pointer",
+          fontWeight: "bold",
+        }}
+      />
+    </div>
+  );
 
   // 프로필이 없는 경우 (404 에러)
   if (isError) {
@@ -46,7 +66,20 @@ const MyPage = () => {
     if (is404) {
       return (
         <div>
-          <h1>프로필 생성</h1>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "20px" }}>
+            <h1>프로필 생성</h1>
+            <LogoutButton
+              style={{
+                padding: "8px 16px",
+                backgroundColor: "#dc3545",
+                color: "white",
+                border: "none",
+                borderRadius: "4px",
+                cursor: "pointer",
+                fontWeight: "bold",
+              }}
+            />
+          </div>
           <p>프로필을 생성하여 운동 목표와 정보를 설정해주세요.</p>
           <form
             onSubmit={(e) => {
@@ -208,6 +241,54 @@ const MyPage = () => {
               />
             </div>
 
+            <div>
+              <label htmlFor="skeletalMuscleMass">골격근량 : </label>
+              <input
+                id="skeletalMuscleMass"
+                type="number"
+                value={formData.skeletalMuscleMass || ""}
+                onChange={(e) =>
+                  setFormData(({...formData, skeletalMuscleMass: e.target.value ? parseFloat(e.target.value) : undefined}))
+                }
+              />
+            </div>
+
+            <div>
+              <label htmlFor="bodyFatMass">체지방량 : </label>
+              <input
+                id="bodyFatMass"
+                type="number"
+                value={formData.bodyFatMass || ""}
+                onChange={(e) =>
+                  setFormData(({...formData, bodyFatMass: e.target.value ? parseFloat(e.target.value) : undefined}))
+                }
+              />
+            </div>
+
+            <div>
+              <label htmlFor="bodyFatPercentage">채지방률 : </label>
+              <input
+                id="bodyFatPercentage"
+                type="number"
+                value={formData.bodyFatPercentage || ""}
+                onChange={(e) =>
+                  setFormData(({...formData, bodyFatPercentage: e.target.value ? parseFloat(e.target.value) : undefined}))
+                }
+              />
+            </div>
+
+            <div>
+              <label htmlFor="bmi">채지방률 : </label>
+              <input
+                id="bmi"
+                type="number"
+                value={formData.bmi || ""}
+                onChange={(e) =>
+                  setFormData(({...formData, bmi: e.target.value ? parseFloat(e.target.value) : undefined}))
+                }
+              />
+            </div>
+
             <button type="submit" disabled={isPending}>
               {isPending ? "생성 중..." : "프로필 생성"}
             </button>
@@ -219,7 +300,21 @@ const MyPage = () => {
     // 다른 에러
     return (
       <div>
-        프로필을 불러오지 못했습니다.
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "20px" }}>
+          <h1>오류 발생</h1>
+          <LogoutButton
+            style={{
+              padding: "8px 16px",
+              backgroundColor: "#dc3545",
+              color: "white",
+              border: "none",
+              borderRadius: "4px",
+              cursor: "pointer",
+              fontWeight: "bold",
+            }}
+          />
+        </div>
+        <p>프로필을 불러오지 못했습니다.</p>
         <div>{errorMessage}</div>
       </div>
     );
@@ -227,7 +322,20 @@ const MyPage = () => {
 
   return (
     <div>
-      <h1>마이 페이지</h1>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "20px" }}>
+        <h1>마이 페이지</h1>
+        <LogoutButton
+          style={{
+            padding: "8px 16px",
+            backgroundColor: "#dc3545",
+            color: "white",
+            border: "none",
+            borderRadius: "4px",
+            cursor: "pointer",
+            fontWeight: "bold",
+          }}
+        />
+      </div>
       <div>{data?.user.name}</div>
       <div>
         <h2>프로필 정보</h2>
@@ -235,6 +343,7 @@ const MyPage = () => {
         <p>생년월일: {data?.userProfile.birth}</p>
         <p>키: {data?.userProfile.height} cm</p>
         <p>체중: {data?.userProfile.weight} kg</p>
+        <p>골격근량: {data?.userProfile.skeletalMuscleMass} </p>
         <p>BMI: {data?.userProfile.bmi}</p>
         <p>체지방률: {data?.userProfile.bodyFatPercentage}%</p>
       </div>

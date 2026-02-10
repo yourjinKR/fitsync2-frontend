@@ -171,7 +171,7 @@ api.interceptors.response.use(
 
       } catch (refreshErr) {
         tokenStore.clear();
-        window.location.href = "/test/login";
+        window.location.href = "/login";
 
         if (axios.isAxiosError(refreshErr)) {
           return Promise.reject(new ApiError(refreshErr));
