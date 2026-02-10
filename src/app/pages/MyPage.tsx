@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { getMyUserInfo } from "../features/user/apis/getMyUserInfo";
 import { useMyProfileQuery } from "../features/profile/hooks/useMyProfileQuery";
 import { useCreateProfileMutation } from "../features/profile/hooks/useCreateProfileMutation";
@@ -8,6 +9,7 @@ import type { Gender } from "../features/user/types/member";
 import { ApiError } from "../shared/apis/http";
 
 const MyPage = () => {
+  const navigate = useNavigate();
   const { data, isLoading, isError, error } = useMyProfileQuery();
   const { mutate: createProfile, isPending } = useCreateProfileMutation();
 
@@ -344,6 +346,21 @@ const MyPage = () => {
         <p>골격근량: {data?.userProfile.skeletalMuscleMass} </p>
         <p>BMI: {data?.userProfile.bmi}</p>
         <p>체지방률: {data?.userProfile.bodyFatPercentage}%</p>
+        <button
+          onClick={() => navigate("/me/inbody")}
+          style={{
+            marginTop: "15px",
+            padding: "10px 20px",
+            backgroundColor: "#007bff",
+            color: "white",
+            border: "none",
+            borderRadius: "4px",
+            cursor: "pointer",
+            fontWeight: "bold",
+          }}
+        >
+          인바디 정보 수정
+        </button>
       </div>
     </div>
   );

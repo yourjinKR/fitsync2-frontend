@@ -7,6 +7,7 @@ import CookiePage from "./pages/CookiePage";
 import MyPage from "./pages/MyPage";
 import LoginPage from "./pages/LoginPage";
 import SignupPage from "./pages/SignupPage";
+import { InBodyRecordPage } from "./pages/InBodyRecordPage";
 
 export const router = createBrowserRouter([
   {
@@ -17,7 +18,8 @@ export const router = createBrowserRouter([
       { path: "/signup", element: <SignupPage /> },
       { path: "/test/login", element: <LoginTestPage /> },
       { path: "/cookie", element: <CookiePage /> },
-      { path: "/me", element: <MyPage /> }
+      { path: "/me", element: <MyPage /> },
+      { path: "/me/inbody", element: <InBodyRecordPage /> }
 
     ],
     errorElement: <NotFoundPage />
