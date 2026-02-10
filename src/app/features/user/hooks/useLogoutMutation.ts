@@ -1,12 +1,6 @@
 import { useMutation } from "@tanstack/react-query";
 import { logoutUser } from "../apis/logoutUser";
-
-const tokenStore = {
-  clear: () => {
-    localStorage.removeItem("accessToken");
-    localStorage.removeItem("refreshToken");
-  },
-};
+import { tokenStore } from "../tokenStore";
 
 /**
  * 로그아웃 mutation hook
