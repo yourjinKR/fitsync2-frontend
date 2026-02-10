@@ -40,6 +40,19 @@ export type UserProfileDetailResponse = {
   bmi : number
 };
 
+export type InBodyRecordRequest = {
+  userId : number,
+  weight : number,
+  skeletalMuscleMass : number,
+  bodyFatMass : number,
+  bodyFatPercentage : number,
+  bmi : number,
+};
+
+export type InBodyRecordResponse = {
+  id : number
+};
+
 export type WorkoutGoal = 
   | "WEIGHT_LOSS"
   | "MUSCLE_GAIN"
