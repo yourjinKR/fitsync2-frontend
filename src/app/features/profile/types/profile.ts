@@ -1,7 +1,6 @@
 import type { Gender, LocalDateString } from "../../user/types/member";
 
 export type UserProfileRequest = {
-  userId: number;
   gender: Gender;
   birth: LocalDateString;
   workoutGoals: WorkoutGoal[];

@@ -8,12 +8,10 @@ import type { Gender } from "../features/user/types/member";
 import { ApiError } from "../shared/apis/http";
 
 const MyPage = () => {
-  const userId = 7; // TODO: 로그인된 유저 정보에서 가져오기
-  const { data, isLoading, isError, error } = useMyProfileQuery(userId);
+  const { data, isLoading, isError, error } = useMyProfileQuery();
   const { mutate: createProfile, isPending } = useCreateProfileMutation();
 
   const [formData, setFormData] = useState<Partial<UserProfileRequest>>({
-    userId,
     gender: undefined,
     birth: "",
     workoutGoals: [],
