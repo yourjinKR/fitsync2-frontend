@@ -1,7 +1,6 @@
 import type { Gender, LocalDateString } from "../../user/types/member";
 
 export type UserProfileRequest = {
-  userId: number;
   gender: Gender;
   birth: LocalDateString;
   workoutGoals: WorkoutGoal[];
@@ -39,6 +38,19 @@ export type UserProfileDetailResponse = {
   bodyFatMass : number,
   bodyFatPercentage : number,
   bmi : number
+};
+
+export type InBodyRecordRequest = {
+  userId : number,
+  weight : number,
+  skeletalMuscleMass : number,
+  bodyFatMass : number,
+  bodyFatPercentage : number,
+  bmi : number,
+};
+
+export type InBodyRecordResponse = {
+  id : number
 };
 
 export type WorkoutGoal = 
