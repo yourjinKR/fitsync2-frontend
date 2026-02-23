@@ -111,7 +111,7 @@ export type ExerciseListRequest = {
   hidden?: boolean;
   page?: number;
   size?: number;
-  sort?: string[];
+  sort?: string | string[];
 };
 
 export type ExerciseListItemResponse = {
