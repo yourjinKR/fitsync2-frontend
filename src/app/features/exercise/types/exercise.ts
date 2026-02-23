@@ -85,6 +85,12 @@ export type ExerciseTargetRequest = {
   targetRole: TargetRole;
 };
 
+export type BodyDetailPartListResponse = {
+  id: number;
+  detailPartName: string;
+  partName: string;
+};
+
 export type ExerciseRequest = {
   name: string;
   category: ExerciseCategory;
