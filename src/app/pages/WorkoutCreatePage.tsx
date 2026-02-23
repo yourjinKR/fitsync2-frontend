@@ -17,6 +17,12 @@ const Layout = styled.div`
   gap: 16px;
 `;
 
+const ErrorText = styled.p`
+  color: #ffb4b4;
+  margin: 4px 0 0;
+  font-size: 12px;
+`;
+
 type DraftSet = {
   memo: string;
   displayOrder: string;
@@ -35,6 +41,8 @@ type DraftWorkoutExercise = {
   memo: string;
   sets: DraftSet[];
 };
+
+type FieldErrors = Record<string, string>;
 
 const makeDraftSet = (displayOrder: number): DraftSet => ({
   memo: "",
@@ -61,6 +69,28 @@ const parseRequiredPositiveInt = (value: string): number | null => {
   return num;
 };
 
+const isPositiveIntegerText = (value: string) => /^[1-9]\d*$/.test(value);
+
+const validateIntegerField = (value: string, required: boolean): string | undefined => {
+  const trimmed = value.trim();
+  if (!trimmed) {
+    return required ? "필수값입니다." : undefined;
+  }
+  if (!/^\d+$/.test(trimmed)) {
+    return "정수만 입력하세요.";
+  }
+  if (!isPositiveIntegerText(trimmed)) {
+    return "1 이상의 정수만 허용됩니다.";
+  }
+  return undefined;
+};
+
+const setFieldKey = (
+  exerciseId: number,
+  setIndex: number,
+  field: Exclude<keyof DraftSet, "memo">,
+) => `set.${exerciseId}.${setIndex}.${field}`;
+
 export function WorkoutCreatePage() {
   const navigate = useNavigate();
   const { mutateAsync, isPending, isError, error } = useCreateWorkoutMutation();
@@ -76,6 +106,7 @@ export function WorkoutCreatePage() {
   const [search, setSearch] = useState("");
   const [workoutExercises, setWorkoutExercises] = useState<DraftWorkoutExercise[]>([]);
   const [formError, setFormError] = useState<string | null>(null);
+  const [fieldErrors, setFieldErrors] = useState<FieldErrors>({});
 
   const filteredExercises = useMemo(() => {
     const list = exercisePage?.content ?? [];
@@ -101,6 +132,11 @@ export function WorkoutCreatePage() {
 
   const removeExercise = (exerciseId: number) => {
     setWorkoutExercises((prev) => prev.filter((item) => item.exerciseId !== exerciseId));
+    setFieldErrors((prev) =>
+      Object.fromEntries(
+        Object.entries(prev).filter(([key]) => !key.startsWith(`set.${exerciseId}.`)),
+      ),
+    );
   };
 
   const updateExerciseMemo = (exerciseId: number, nextMemo: string) => {
@@ -126,6 +162,11 @@ export function WorkoutCreatePage() {
         return { ...item, sets: item.sets.filter((_, idx) => idx !== setIndex) };
       }),
     );
+    setFieldErrors((prev) =>
+      Object.fromEntries(
+        Object.entries(prev).filter(([key]) => !key.startsWith(`set.${exerciseId}.${setIndex}.`)),
+      ),
+    );
   };
 
   const updateSetField = (
@@ -134,6 +175,18 @@ export function WorkoutCreatePage() {
     field: keyof DraftSet,
     value: string,
   ) => {
+    if (field !== "memo") {
+      const required = field === "displayOrder";
+      const nextError = validateIntegerField(value, required);
+      setFieldErrors((prev) => {
+        const key = setFieldKey(exerciseId, setIndex, field);
+        if (nextError) return { ...prev, [key]: nextError };
+        const next = { ...prev };
+        delete next[key];
+        return next;
+      });
+    }
+
     setWorkoutExercises((prev) =>
       prev.map((item) => {
         if (item.exerciseId !== exerciseId) return item;
@@ -145,9 +198,59 @@ export function WorkoutCreatePage() {
     );
   };
 
+  const reorderDisplayOrder = (exerciseId: number) => {
+    setWorkoutExercises((prev) =>
+      prev.map((item) => {
+        if (item.exerciseId !== exerciseId) return item;
+        return {
+          ...item,
+          sets: item.sets.map((set, idx) => ({ ...set, displayOrder: String(idx + 1) })),
+        };
+      }),
+    );
+
+    setFieldErrors((prev) =>
+      Object.fromEntries(
+        Object.entries(prev).filter(([key]) => !key.startsWith(`set.${exerciseId}.`) || !key.endsWith(".displayOrder")),
+      ),
+    );
+  };
+
+  const onWriterIdChange = (value: string) => {
+    setWriterId(value);
+    const nextError = validateIntegerField(value, true);
+    setFieldErrors((prev) => {
+      if (!nextError) {
+        const next = { ...prev };
+        delete next.writerId;
+        return next;
+      }
+      return { ...prev, writerId: nextError };
+    });
+  };
+
+  const onOwnerIdChange = (value: string) => {
+    setOwnerId(value);
+    const nextError = validateIntegerField(value, true);
+    setFieldErrors((prev) => {
+      if (!nextError) {
+        const next = { ...prev };
+        delete next.ownerId;
+        return next;
+      }
+      return { ...prev, ownerId: nextError };
+    });
+  };
+
   const onSubmit = async (e: FormEvent) => {
     e.preventDefault();
     setFormError(null);
+
+    const hasFieldErrors = Object.keys(fieldErrors).length > 0;
+    if (hasFieldErrors) {
+      setFormError("입력 오류를 먼저 수정해주세요.");
+      return;
+    }
 
     const parsedWriterId = parseRequiredPositiveInt(writerId);
     const parsedOwnerId = parseRequiredPositiveInt(ownerId);
@@ -222,21 +325,25 @@ export function WorkoutCreatePage() {
           <label htmlFor="workout-writer-id">writerId </label>
           <input
             id="workout-writer-id"
-            type="number"
+            type="text"
+            inputMode="numeric"
             value={writerId}
-            onChange={(e) => setWriterId(e.target.value)}
+            onChange={(e) => onWriterIdChange(e.target.value)}
             required
           />
+          {fieldErrors.writerId && <ErrorText>{fieldErrors.writerId}</ErrorText>}
         </p>
         <p>
           <label htmlFor="workout-owner-id-create">ownerId </label>
           <input
             id="workout-owner-id-create"
-            type="number"
+            type="text"
+            inputMode="numeric"
             value={ownerId}
-            onChange={(e) => setOwnerId(e.target.value)}
+            onChange={(e) => onOwnerIdChange(e.target.value)}
             required
           />
+          {fieldErrors.ownerId && <ErrorText>{fieldErrors.ownerId}</ErrorText>}
         </p>
         <p>
           <label htmlFor="workout-memo">memo </label>
@@ -288,57 +395,116 @@ export function WorkoutCreatePage() {
                   />
                 </div>
                 <div style={{ marginTop: "8px" }}>
+                  <button type="button" onClick={() => reorderDisplayOrder(exercise.exerciseId)}>
+                    displayOrder 자동정렬
+                  </button>
                   {exercise.sets.map((set, setIndex) => (
                     <div key={`${exercise.exerciseId}-set-${setIndex}`} style={{ marginBottom: "8px", padding: "8px", border: "1px dashed #555" }}>
                       <div style={{ display: "flex", gap: "6px", flexWrap: "wrap" }}>
-                        <input
-                          placeholder="displayOrder"
-                          value={set.displayOrder}
-                          onChange={(e) => updateSetField(exercise.exerciseId, setIndex, "displayOrder", e.target.value)}
-                          style={{ width: "100px" }}
-                        />
-                        <input
-                          placeholder="weightKg"
-                          value={set.weightKg}
-                          onChange={(e) => updateSetField(exercise.exerciseId, setIndex, "weightKg", e.target.value)}
-                          style={{ width: "100px" }}
-                        />
-                        <input
-                          placeholder="reps"
-                          value={set.reps}
-                          onChange={(e) => updateSetField(exercise.exerciseId, setIndex, "reps", e.target.value)}
-                          style={{ width: "100px" }}
-                        />
-                        <input
-                          placeholder="distanceM"
-                          value={set.distanceM}
-                          onChange={(e) => updateSetField(exercise.exerciseId, setIndex, "distanceM", e.target.value)}
-                          style={{ width: "100px" }}
-                        />
-                        <input
-                          placeholder="durationSec"
-                          value={set.durationSec}
-                          onChange={(e) => updateSetField(exercise.exerciseId, setIndex, "durationSec", e.target.value)}
-                          style={{ width: "110px" }}
-                        />
-                        <input
-                          placeholder="speedKmh"
-                          value={set.speedKmh}
-                          onChange={(e) => updateSetField(exercise.exerciseId, setIndex, "speedKmh", e.target.value)}
-                          style={{ width: "100px" }}
-                        />
-                        <input
-                          placeholder="rpe"
-                          value={set.rpe}
-                          onChange={(e) => updateSetField(exercise.exerciseId, setIndex, "rpe", e.target.value)}
-                          style={{ width: "80px" }}
-                        />
-                        <input
-                          placeholder="restTimeSec"
-                          value={set.restTimeSec}
-                          onChange={(e) => updateSetField(exercise.exerciseId, setIndex, "restTimeSec", e.target.value)}
-                          style={{ width: "120px" }}
-                        />
+                        <div>
+                          <input
+                            type="text"
+                            inputMode="numeric"
+                            placeholder="displayOrder"
+                            value={set.displayOrder}
+                            onChange={(e) => updateSetField(exercise.exerciseId, setIndex, "displayOrder", e.target.value)}
+                            style={{ width: "100px" }}
+                          />
+                          {fieldErrors[setFieldKey(exercise.exerciseId, setIndex, "displayOrder")] && (
+                            <ErrorText>{fieldErrors[setFieldKey(exercise.exerciseId, setIndex, "displayOrder")]}</ErrorText>
+                          )}
+                        </div>
+                        <div>
+                          <input
+                            type="text"
+                            inputMode="numeric"
+                            placeholder="weightKg"
+                            value={set.weightKg}
+                            onChange={(e) => updateSetField(exercise.exerciseId, setIndex, "weightKg", e.target.value)}
+                            style={{ width: "100px" }}
+                          />
+                          {fieldErrors[setFieldKey(exercise.exerciseId, setIndex, "weightKg")] && (
+                            <ErrorText>{fieldErrors[setFieldKey(exercise.exerciseId, setIndex, "weightKg")]}</ErrorText>
+                          )}
+                        </div>
+                        <div>
+                          <input
+                            type="text"
+                            inputMode="numeric"
+                            placeholder="reps"
+                            value={set.reps}
+                            onChange={(e) => updateSetField(exercise.exerciseId, setIndex, "reps", e.target.value)}
+                            style={{ width: "100px" }}
+                          />
+                          {fieldErrors[setFieldKey(exercise.exerciseId, setIndex, "reps")] && (
+                            <ErrorText>{fieldErrors[setFieldKey(exercise.exerciseId, setIndex, "reps")]}</ErrorText>
+                          )}
+                        </div>
+                        <div>
+                          <input
+                            type="text"
+                            inputMode="numeric"
+                            placeholder="distanceM"
+                            value={set.distanceM}
+                            onChange={(e) => updateSetField(exercise.exerciseId, setIndex, "distanceM", e.target.value)}
+                            style={{ width: "100px" }}
+                          />
+                          {fieldErrors[setFieldKey(exercise.exerciseId, setIndex, "distanceM")] && (
+                            <ErrorText>{fieldErrors[setFieldKey(exercise.exerciseId, setIndex, "distanceM")]}</ErrorText>
+                          )}
+                        </div>
+                        <div>
+                          <input
+                            type="text"
+                            inputMode="numeric"
+                            placeholder="durationSec"
+                            value={set.durationSec}
+                            onChange={(e) => updateSetField(exercise.exerciseId, setIndex, "durationSec", e.target.value)}
+                            style={{ width: "110px" }}
+                          />
+                          {fieldErrors[setFieldKey(exercise.exerciseId, setIndex, "durationSec")] && (
+                            <ErrorText>{fieldErrors[setFieldKey(exercise.exerciseId, setIndex, "durationSec")]}</ErrorText>
+                          )}
+                        </div>
+                        <div>
+                          <input
+                            type="text"
+                            inputMode="numeric"
+                            placeholder="speedKmh"
+                            value={set.speedKmh}
+                            onChange={(e) => updateSetField(exercise.exerciseId, setIndex, "speedKmh", e.target.value)}
+                            style={{ width: "100px" }}
+                          />
+                          {fieldErrors[setFieldKey(exercise.exerciseId, setIndex, "speedKmh")] && (
+                            <ErrorText>{fieldErrors[setFieldKey(exercise.exerciseId, setIndex, "speedKmh")]}</ErrorText>
+                          )}
+                        </div>
+                        <div>
+                          <input
+                            type="text"
+                            inputMode="numeric"
+                            placeholder="rpe"
+                            value={set.rpe}
+                            onChange={(e) => updateSetField(exercise.exerciseId, setIndex, "rpe", e.target.value)}
+                            style={{ width: "80px" }}
+                          />
+                          {fieldErrors[setFieldKey(exercise.exerciseId, setIndex, "rpe")] && (
+                            <ErrorText>{fieldErrors[setFieldKey(exercise.exerciseId, setIndex, "rpe")]}</ErrorText>
+                          )}
+                        </div>
+                        <div>
+                          <input
+                            type="text"
+                            inputMode="numeric"
+                            placeholder="restTimeSec"
+                            value={set.restTimeSec}
+                            onChange={(e) => updateSetField(exercise.exerciseId, setIndex, "restTimeSec", e.target.value)}
+                            style={{ width: "120px" }}
+                          />
+                          {fieldErrors[setFieldKey(exercise.exerciseId, setIndex, "restTimeSec")] && (
+                            <ErrorText>{fieldErrors[setFieldKey(exercise.exerciseId, setIndex, "restTimeSec")]}</ErrorText>
+                          )}
+                        </div>
                       </div>
                       <div style={{ marginTop: "6px" }}>
                         <input
