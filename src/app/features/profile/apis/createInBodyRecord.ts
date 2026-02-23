@@ -17,7 +17,7 @@ export const createInBodyRecord = async (
   request: InBodyRecordRequest
 ): Promise<InBodyRecordResponse> => {
   const response = await api.post<InBodyRecordResponse>(
-    "/api/user/profile/inbody",
+    "/api/users/me/inbody-records",
     request
   );
   return response.data;

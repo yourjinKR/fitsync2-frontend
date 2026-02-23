@@ -40,7 +40,7 @@ const SignupPage = () => {
 
     setLoadingCheckLoginId(true);
     try {
-      const response = await authApi.get<boolean>(`/api/user/exist/${formData.loginId}`);
+      const response = await authApi.get<boolean>(`/api/users/exists/${formData.loginId}`);
       const exists = response.data;
       setLoginIdAvailable(!exists);
       if (exists) {

@@ -41,7 +41,6 @@ export type UserProfileDetailResponse = {
 };
 
 export type InBodyRecordRequest = {
-  userId : number,
   weight : number,
   skeletalMuscleMass : number,
   bodyFatMass : number,
