@@ -31,7 +31,7 @@ export type WorkoutListRequest = {
   ownerId?: number;
   page?: number;
   size?: number;
-  sort?: string[];
+  sort?: string | string[];
 };
 
 export type WorkoutListItemResponse = {
