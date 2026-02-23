@@ -5,13 +5,84 @@ export type ExerciseCategory =
   | "PILATES"
   | "REHAB";
 
-export type EffectType = string;
-export type Equipment = string;
-export type MetricType = string;
+export type TargetRole = "MAIN" | "SUB";
+
+export type EffectType =
+  | "STRENGTH"
+  | "ENDURANCE"
+  | "CARDIO"
+  | "FLEXIBILITY"
+  | "MOBILITY";
+
+export type Equipment =
+  | "NO_EQUIPMENT"
+  | "DUMBBELLS"
+  | "BARBELL"
+  | "BENCH"
+  | "CABLE"
+  | "BOSU_TRAINER"
+  | "TRX"
+  | "BOX"
+  | "STABILITY_BALL"
+  | "MEDICINE_BALL"
+  | "CONES"
+  | "WEIGHT_MACHINES"
+  | "PULL_UP_BAR"
+  | "LADDER"
+  | "HURDLES"
+  | "KETTLE_BELLS"
+  | "ROPE";
+
+export type MetricType =
+  | "WEIGHT"
+  | "REPS"
+  | "DISTANCE"
+  | "TIME"
+  | "SPEED"
+  | "RPE"
+  | "REST_TIME";
+
+export const EFFECT_TYPES: EffectType[] = [
+  "STRENGTH",
+  "ENDURANCE",
+  "CARDIO",
+  "FLEXIBILITY",
+  "MOBILITY",
+];
+
+export const EQUIPMENT_TYPES: Equipment[] = [
+  "NO_EQUIPMENT",
+  "DUMBBELLS",
+  "BARBELL",
+  "BENCH",
+  "CABLE",
+  "BOSU_TRAINER",
+  "TRX",
+  "BOX",
+  "STABILITY_BALL",
+  "MEDICINE_BALL",
+  "CONES",
+  "WEIGHT_MACHINES",
+  "PULL_UP_BAR",
+  "LADDER",
+  "HURDLES",
+  "KETTLE_BELLS",
+  "ROPE",
+];
+
+export const METRIC_TYPES: MetricType[] = [
+  "WEIGHT",
+  "REPS",
+  "DISTANCE",
+  "TIME",
+  "SPEED",
+  "RPE",
+  "REST_TIME",
+];
 
 export type ExerciseTargetRequest = {
-  targetType: string;
-  difficulty?: number;
+  bodyDetailPartId: number;
+  targetRole: TargetRole;
 };
 
 export type ExerciseRequest = {
@@ -68,4 +139,3 @@ export type ExerciseDetailResponse = {
   requiredMetrics: MetricType[];
   hidden: boolean;
 };
-
