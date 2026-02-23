@@ -2,6 +2,7 @@ import { useState, type FormEvent } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import styled from "styled-components";
 import { useCreateWorkoutMutation } from "../features/workout/hooks/useCreateWorkoutMutation";
+import { ApiError } from "../shared/apis/http";
 import type { WorkoutExerciseRequest, WorkoutRequest } from "../features/workout/types/workout";
 
 const Wrap = styled.main`
@@ -12,8 +13,8 @@ const DEFAULT_EXERCISES = JSON.stringify(
   [
     {
       exerciseId: 1,
-      order: 1,
-      sets: [{ order: 1, reps: 10, weight: 40 }],
+      memo: "스쿼트",
+      sets: [{ displayOrder: 1, reps: 10, weightKg: 40, restTimeSec: 90 }],
     },
   ],
   null,
@@ -28,22 +29,41 @@ export function WorkoutCreatePage() {
   const [ownerId, setOwnerId] = useState("");
   const [memo, setMemo] = useState("");
   const [workoutExercisesText, setWorkoutExercisesText] = useState(DEFAULT_EXERCISES);
+  const [formError, setFormError] = useState<string | null>(null);
 
   const onSubmit = async (e: FormEvent) => {
     e.preventDefault();
+    setFormError(null);
 
     let workoutExercises: WorkoutExerciseRequest[] = [];
     try {
       workoutExercises = JSON.parse(workoutExercisesText) as WorkoutExerciseRequest[];
     } catch {
-      alert("workoutExercises는 JSON 배열 형식으로 입력해야 합니다.");
+      setFormError("workoutExercises는 JSON 배열 형식이어야 합니다.");
       return;
     }
 
     const parsedWriterId = Number(writerId);
     const parsedOwnerId = Number(ownerId);
     if (!parsedWriterId || !parsedOwnerId) {
-      alert("writerId, ownerId를 입력해주세요.");
+      setFormError("writerId, ownerId는 1 이상의 숫자여야 합니다.");
+      return;
+    }
+
+    if (!workoutExercises.length) {
+      setFormError("workoutExercises는 최소 1개 이상이어야 합니다.");
+      return;
+    }
+
+    const hasInvalidExercise = workoutExercises.some(
+      (exercise) =>
+        !exercise.exerciseId ||
+        exercise.exerciseId <= 0 ||
+        !exercise.sets?.length ||
+        exercise.sets.some((set) => !set.displayOrder || set.displayOrder <= 0),
+    );
+    if (hasInvalidExercise) {
+      setFormError("각 exercise는 exerciseId(>0)와 sets(displayOrder>0)을 포함해야 합니다.");
       return;
     }
 
@@ -54,8 +74,12 @@ export function WorkoutCreatePage() {
       workoutExercises,
     };
 
-    const created = await mutateAsync(request);
-    navigate(`/test/workouts/${created.id}`);
+    try {
+      const created = await mutateAsync(request);
+      navigate(`/test/workouts/${created.id}`);
+    } catch {
+      // 에러 표시는 mutation state로 처리
+    }
   };
 
   return (
@@ -96,6 +120,10 @@ export function WorkoutCreatePage() {
         <p>
           <label htmlFor="workout-exercises-json">workoutExercises(JSON)</label>
           <br />
+          <small>
+            예시: [{`{"exerciseId":1,"memo":"스쿼트","sets":[{"displayOrder":1,"weightKg":40,"reps":10}]}`}]
+          </small>
+          <br />
           <textarea
             id="workout-exercises-json"
             value={workoutExercisesText}
@@ -108,7 +136,21 @@ export function WorkoutCreatePage() {
           {isPending ? "생성 중..." : "생성"}
         </button>
       </form>
-      {isError && <p>오류: {error instanceof Error ? error.message : "알 수 없는 오류"}</p>}
+      {formError && <p style={{ color: "#ffb4b4" }}>{formError}</p>}
+      {isError && (
+        <div>
+          <p>오류: {error instanceof Error ? error.message : "알 수 없는 오류"}</p>
+          {error instanceof ApiError && error.errors?.length ? (
+            <ul>
+              {error.errors.map((fieldError, idx) => (
+                <li key={`${fieldError.field}-${idx}`}>
+                  {fieldError.field}: {fieldError.message}
+                </li>
+              ))}
+            </ul>
+          ) : null}
+        </div>
+      )}
     </Wrap>
   );
 }

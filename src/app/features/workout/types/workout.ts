@@ -1,14 +1,17 @@
 export type WorkoutSetRequest = {
-  order: number;
-  weight?: number;
+  memo?: string;
+  displayOrder: number;
+  weightKg?: number;
   reps?: number;
-  durationSeconds?: number;
-  distanceMeter?: number;
+  distanceM?: number;
+  durationSec?: number;
+  speedKmh?: number;
+  rpe?: number;
+  restTimeSec?: number;
 };
 
 export type WorkoutExerciseRequest = {
   exerciseId: number;
-  order: number;
   memo?: string;
   sets: WorkoutSetRequest[];
 };
@@ -33,9 +36,9 @@ export type WorkoutListRequest = {
 
 export type WorkoutListItemResponse = {
   id: number;
-  ownerId: number;
-  writerId: number;
-  workoutDateTime?: string;
+  createdAt: string;
+  ownerId?: number;
+  writerId?: number;
   memo?: string;
 };
 
@@ -52,19 +55,27 @@ export type PageResponse<T> = {
 export type WorkoutListResponse = PageResponse<WorkoutListItemResponse>;
 
 export type WorkoutSetDetailResponse = {
-  order: number;
-  weight?: number;
+  id: number;
+  memo?: string;
+  weightKg?: number;
   reps?: number;
-  durationSeconds?: number;
-  distanceMeter?: number;
+  distanceM?: number;
+  durationSec?: number;
+  speedKmh?: number;
+  rpe?: number;
+  restTimeSec?: number;
+};
+
+export type ExerciseSummaryResponse = {
+  id: number;
+  name: string;
 };
 
 export type WorkoutExerciseDetailResponse = {
-  exerciseId: number;
-  exerciseName?: string;
-  order: number;
+  id: number;
+  exercise: ExerciseSummaryResponse;
   memo?: string;
-  sets: WorkoutSetDetailResponse[];
+  workoutSets: WorkoutSetDetailResponse[];
 };
 
 export type WorkoutDetailResponse = {
@@ -72,7 +83,6 @@ export type WorkoutDetailResponse = {
   ownerId: number;
   writerId: number;
   memo?: string;
-  workoutDateTime?: string;
+  createdAt: string;
   workoutExercises: WorkoutExerciseDetailResponse[];
 };
-

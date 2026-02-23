@@ -25,11 +25,25 @@ export function WorkoutDetailPage() {
           <p>ownerId: {data.ownerId}</p>
           <p>writerId: {data.writerId}</p>
           <p>memo: {data.memo || "-"}</p>
+          <p>createdAt: {data.createdAt}</p>
           <h3>운동 목록</h3>
           <ul>
             {data.workoutExercises.map((exercise) => (
-              <li key={`${exercise.exerciseId}-${exercise.order}`}>
-                exerciseId={exercise.exerciseId}, sets={exercise.sets.length}
+              <li key={exercise.id}>
+                <div>
+                  exerciseId={exercise.exercise.id}, name={exercise.exercise.name}, memo=
+                  {exercise.memo || "-"}
+                </div>
+                <div>sets: {exercise.workoutSets.length}</div>
+                <ul>
+                  {exercise.workoutSets.map((set) => (
+                    <li key={set.id}>
+                      weightKg={set.weightKg ?? "-"}, reps={set.reps ?? "-"}, distanceM=
+                      {set.distanceM ?? "-"}, durationSec={set.durationSec ?? "-"}, speedKmh=
+                      {set.speedKmh ?? "-"}, rpe={set.rpe ?? "-"}, restTimeSec={set.restTimeSec ?? "-"}
+                    </li>
+                  ))}
+                </ul>
               </li>
             ))}
           </ul>

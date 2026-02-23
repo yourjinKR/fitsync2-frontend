@@ -38,8 +38,7 @@ export function WorkoutListPage() {
         <ul>
           {data?.content.map((item) => (
             <li key={item.id}>
-              <Link to={`/test/workouts/${item.id}`}>#{item.id}</Link> owner:{item.ownerId} writer:
-              {item.writerId}
+              <Link to={`/test/workouts/${item.id}`}>#{item.id}</Link> createdAt:{item.createdAt}
             </li>
           ))}
         </ul>
