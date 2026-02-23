@@ -136,7 +136,7 @@ export function ExerciseCreatePage() {
 
     try {
       const created = await mutateAsync(request);
-      navigate(`/exercises/${created.id}`);
+      navigate(`/test/exercises/${created.id}`);
     } catch {
       // 에러 표시는 mutation state(isError/error)로 처리
     }
@@ -146,7 +146,7 @@ export function ExerciseCreatePage() {
     <Wrap>
       <h1>운동 생성</h1>
       <p>
-        <Link to="/exercises">운동 목록</Link>
+        <Link to="/test/exercises">운동 목록</Link>
       </p>
       <form onSubmit={onSubmit}>
         {formErrors.details && <p style={{ color: "#ffb4b4" }}>{formErrors.details}</p>}

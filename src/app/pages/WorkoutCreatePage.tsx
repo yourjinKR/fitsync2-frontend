@@ -55,14 +55,14 @@ export function WorkoutCreatePage() {
     };
 
     const created = await mutateAsync(request);
-    navigate(`/workouts/${created.id}`);
+    navigate(`/test/workouts/${created.id}`);
   };
 
   return (
     <Wrap>
       <h1>운동 기록 생성</h1>
       <p>
-        <Link to="/workouts">운동 기록 목록</Link>
+        <Link to="/test/workouts">운동 기록 목록</Link>
       </p>
       <form onSubmit={onSubmit}>
         <p>
@@ -112,4 +112,3 @@ export function WorkoutCreatePage() {
     </Wrap>
   );
 }
-

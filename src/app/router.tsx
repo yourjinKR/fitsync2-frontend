@@ -26,12 +26,12 @@ export const router = createBrowserRouter([
       { path: "/cookie", element: <CookiePage /> },
       { path: "/me", element: <MyPage /> },
       { path: "/me/inbody", element: <InBodyRecordPage /> },
-      { path: "/exercises", element: <ExerciseListPage /> },
-      { path: "/exercises/new", element: <ExerciseCreatePage /> },
-      { path: "/exercises/:exerciseId", element: <ExerciseDetailPage /> },
-      { path: "/workouts", element: <WorkoutListPage /> },
-      { path: "/workouts/new", element: <WorkoutCreatePage /> },
-      { path: "/workouts/:workoutId", element: <WorkoutDetailPage /> },
+      { path: "/test/exercises", element: <ExerciseListPage /> },
+      { path: "/test/exercises/new", element: <ExerciseCreatePage /> },
+      { path: "/test/exercises/:exerciseId", element: <ExerciseDetailPage /> },
+      { path: "/test/workouts", element: <WorkoutListPage /> },
+      { path: "/test/workouts/new", element: <WorkoutCreatePage /> },
+      { path: "/test/workouts/:workoutId", element: <WorkoutDetailPage /> },
 
     ],
     errorElement: <NotFoundPage />

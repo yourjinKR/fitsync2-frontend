@@ -20,7 +20,7 @@ export function WorkoutListPage() {
     <Wrap>
       <h1>운동 기록 목록</h1>
       <p>
-        <Link to="/workouts/new">운동 기록 생성</Link> | <Link to="/">홈으로</Link>
+        <Link to="/test/workouts/new">운동 기록 생성</Link> | <Link to="/">홈으로</Link>
       </p>
       <p>
         <label htmlFor="workout-owner-id">ownerId 필터 </label>
@@ -38,7 +38,7 @@ export function WorkoutListPage() {
         <ul>
           {data?.content.map((item) => (
             <li key={item.id}>
-              <Link to={`/workouts/${item.id}`}>#{item.id}</Link> owner:{item.ownerId} writer:
+              <Link to={`/test/workouts/${item.id}`}>#{item.id}</Link> owner:{item.ownerId} writer:
               {item.writerId}
             </li>
           ))}
@@ -47,4 +47,3 @@ export function WorkoutListPage() {
     </Wrap>
   );
 }
-

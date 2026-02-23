@@ -15,7 +15,7 @@ export function ExerciseDetailPage() {
     <Wrap>
       <h1>운동 상세</h1>
       <p>
-        <Link to="/exercises">운동 목록</Link>
+        <Link to="/test/exercises">운동 목록</Link>
       </p>
       {isLoading && <p>상세 조회 중...</p>}
       {isError && <p>오류: {error instanceof Error ? error.message : "알 수 없는 오류"}</p>}
@@ -33,4 +33,3 @@ export function ExerciseDetailPage() {
     </Wrap>
   );
 }
-

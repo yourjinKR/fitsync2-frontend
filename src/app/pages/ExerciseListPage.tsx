@@ -29,7 +29,7 @@ export function ExerciseListPage() {
     <Wrap>
       <h1>운동 목록</h1>
       <Row>
-        <Link to="/exercises/new">운동 생성</Link>
+        <Link to="/test/exercises/new">운동 생성</Link>
         <Link to="/">홈으로</Link>
       </Row>
       <Row>
@@ -60,7 +60,7 @@ export function ExerciseListPage() {
         <ul>
           {data?.content.map((item) => (
             <li key={item.id}>
-              <Link to={`/exercises/${item.id}`}>{item.name}</Link> ({item.category})
+              <Link to={`/test/exercises/${item.id}`}>{item.name}</Link> ({item.category})
             </li>
           ))}
         </ul>
@@ -68,4 +68,3 @@ export function ExerciseListPage() {
     </Wrap>
   );
 }
-
