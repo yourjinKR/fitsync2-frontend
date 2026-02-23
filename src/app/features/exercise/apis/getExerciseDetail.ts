@@ -5,4 +5,3 @@ export const getExerciseDetail = async (exerciseId: number): Promise<ExerciseDet
   const response = await api.get<ExerciseDetailResponse>(`/api/exercises/${exerciseId}`);
   return response.data;
 };
-

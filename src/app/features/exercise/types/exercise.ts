@@ -139,9 +139,15 @@ export type ExerciseDetailResponse = {
   category: ExerciseCategory;
   description: string;
   details: Record<string, unknown>;
-  targets: Array<Record<string, unknown>>;
+  targets: ExerciseTargetDetailResponse[];
   effects: EffectType[];
   equipments: Equipment[];
   requiredMetrics: MetricType[];
   hidden: boolean;
+};
+
+export type ExerciseTargetDetailResponse = {
+  id: number;
+  bodyDetailPart: BodyDetailPartListResponse;
+  targetRole: TargetRole;
 };
