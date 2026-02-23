@@ -321,7 +321,7 @@ export function WorkoutCreatePage() {
         <Link to="/test/workouts">운동 기록 목록</Link>
       </p>
       <form onSubmit={onSubmit}>
-        <p>
+        <div style={{ marginBottom: "12px" }}>
           <label htmlFor="workout-writer-id">writerId </label>
           <input
             id="workout-writer-id"
@@ -332,8 +332,8 @@ export function WorkoutCreatePage() {
             required
           />
           {fieldErrors.writerId && <ErrorText>{fieldErrors.writerId}</ErrorText>}
-        </p>
-        <p>
+        </div>
+        <div style={{ marginBottom: "12px" }}>
           <label htmlFor="workout-owner-id-create">ownerId </label>
           <input
             id="workout-owner-id-create"
@@ -344,15 +344,15 @@ export function WorkoutCreatePage() {
             required
           />
           {fieldErrors.ownerId && <ErrorText>{fieldErrors.ownerId}</ErrorText>}
-        </p>
-        <p>
+        </div>
+        <div style={{ marginBottom: "12px" }}>
           <label htmlFor="workout-memo">memo </label>
           <input
             id="workout-memo"
             value={memo}
             onChange={(e) => setMemo(e.target.value)}
           />
-        </p>
+        </div>
         <Layout>
           <section>
             <h3>운동 선택</h3>
