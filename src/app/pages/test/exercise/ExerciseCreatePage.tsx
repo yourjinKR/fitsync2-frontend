@@ -1,9 +1,9 @@
 import { useMemo, useState, type FormEvent } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import styled from "styled-components";
-import { useCreateExerciseMutation } from "../features/exercise/hooks/useCreateExerciseMutation";
-import { useBodyDetailPartListQuery } from "../features/exercise/hooks/useBodyDetailPartListQuery";
-import { ApiError } from "../shared/apis/http";
+import { useCreateExerciseMutation } from "../../../features/exercise/hooks/useCreateExerciseMutation";
+import { useBodyDetailPartListQuery } from "../../../features/exercise/hooks/useBodyDetailPartListQuery";
+import { ApiError } from "../../../shared/apis/http";
 import {
   EFFECT_TYPES,
   EQUIPMENT_TYPES,
@@ -15,7 +15,7 @@ import {
   type ExerciseTargetRequest,
   type MetricType,
   type TargetRole,
-} from "../features/exercise/types/exercise";
+} from "../../../features/exercise/types/exercise";
 
 const Wrap = styled.main`
   padding: 24px;

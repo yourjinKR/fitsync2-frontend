@@ -8,12 +8,12 @@ import MyPage from "./pages/MyPage";
 import LoginPage from "./pages/LoginPage";
 import SignupPage from "./pages/SignupPage";
 import { InBodyRecordPage } from "./pages/InBodyRecordPage";
-import { ExerciseListPage } from "./pages/ExerciseListPage";
-import { ExerciseCreatePage } from "./pages/ExerciseCreatePage";
-import { ExerciseDetailPage } from "./pages/ExerciseDetailPage";
-import { WorkoutListPage } from "./pages/WorkoutListPage";
-import { WorkoutCreatePage } from "./pages/WorkoutCreatePage";
-import { WorkoutDetailPage } from "./pages/WorkoutDetailPage";
+import { ExerciseListPage } from "./pages/test/exercise/ExerciseListPage";
+import { ExerciseCreatePage } from "./pages/test/exercise/ExerciseCreatePage";
+import { ExerciseDetailPage } from "./pages/test/exercise/ExerciseDetailPage";
+import { WorkoutListPage } from "./pages/test/workout/WorkoutListPage";
+import { WorkoutCreatePage } from "./pages/test/workout/WorkoutCreatePage";
+import { WorkoutDetailPage } from "./pages/test/workout/WorkoutDetailPage";
 
 export const router = createBrowserRouter([
   {

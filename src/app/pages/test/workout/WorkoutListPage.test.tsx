@@ -3,7 +3,7 @@ import { fireEvent, render, screen } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { WorkoutListPage } from "./WorkoutListPage";
-import type { WorkoutListRequest, WorkoutListResponse } from "../features/workout/types/workout";
+import type { WorkoutListRequest, WorkoutListResponse } from "../../../features/workout/types/workout";
 
 const useWorkoutListQueryMock = vi.fn();
 

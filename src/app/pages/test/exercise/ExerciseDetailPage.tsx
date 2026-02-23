@@ -1,6 +1,6 @@
 import { Link, useParams } from "react-router-dom";
 import styled from "styled-components";
-import { useExerciseDetailQuery } from "../features/exercise/hooks/useExerciseDetailQuery";
+import { useExerciseDetailQuery } from "../../../features/exercise/hooks/useExerciseDetailQuery";
 
 const Wrap = styled.main`
   padding: 24px;

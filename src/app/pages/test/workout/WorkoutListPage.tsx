@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import styled from "styled-components";
-import { useWorkoutListQuery } from "../features/workout/hooks/useWorkoutListQuery";
+import { useWorkoutListQuery } from "../../../features/workout/hooks/useWorkoutListQuery";
 
 const Wrap = styled.main`
   padding: 24px;
