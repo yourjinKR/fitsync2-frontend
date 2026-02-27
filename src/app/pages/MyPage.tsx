@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { getMyUserInfo } from "../features/user/apis/getMyUserInfo";
 import { useMyProfileQuery } from "../features/profile/hooks/useMyProfileQuery";

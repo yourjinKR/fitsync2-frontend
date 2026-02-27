@@ -106,7 +106,6 @@ export const InBodyRecordPage = () => {
         <InBodyRecordForm
           onSubmit={handleSubmit}
           isLoading={isPending}
-          userId={profileData?.userId}
         />
       </div>
 

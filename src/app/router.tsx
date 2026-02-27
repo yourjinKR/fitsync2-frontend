@@ -8,6 +8,12 @@ import MyPage from "./pages/MyPage";
 import LoginPage from "./pages/LoginPage";
 import SignupPage from "./pages/SignupPage";
 import { InBodyRecordPage } from "./pages/InBodyRecordPage";
+import { ExerciseListPage } from "./pages/test/exercise/ExerciseListPage";
+import { ExerciseCreatePage } from "./pages/test/exercise/ExerciseCreatePage";
+import { ExerciseDetailPage } from "./pages/test/exercise/ExerciseDetailPage";
+import { WorkoutListPage } from "./pages/test/workout/WorkoutListPage";
+import { WorkoutCreatePage } from "./pages/test/workout/WorkoutCreatePage";
+import { WorkoutDetailPage } from "./pages/test/workout/WorkoutDetailPage";
 
 export const router = createBrowserRouter([
   {
@@ -19,7 +25,13 @@ export const router = createBrowserRouter([
       { path: "/test/login", element: <LoginTestPage /> },
       { path: "/cookie", element: <CookiePage /> },
       { path: "/me", element: <MyPage /> },
-      { path: "/me/inbody", element: <InBodyRecordPage /> }
+      { path: "/me/inbody", element: <InBodyRecordPage /> },
+      { path: "/test/exercises", element: <ExerciseListPage /> },
+      { path: "/test/exercises/new", element: <ExerciseCreatePage /> },
+      { path: "/test/exercises/:exerciseId", element: <ExerciseDetailPage /> },
+      { path: "/test/workouts", element: <WorkoutListPage /> },
+      { path: "/test/workouts/new", element: <WorkoutCreatePage /> },
+      { path: "/test/workouts/:workoutId", element: <WorkoutDetailPage /> },
 
     ],
     errorElement: <NotFoundPage />

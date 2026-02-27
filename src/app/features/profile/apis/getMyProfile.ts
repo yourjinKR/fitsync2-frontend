@@ -9,6 +9,6 @@ import type { UserWithProfileResponse } from "../types/profile";
  * @throws ApiError 프로필이 없거나 인증되지 않은 경우
  */
 export const getUserMyProfile = async (): Promise<UserWithProfileResponse> => {
-  const response = await api.get<UserWithProfileResponse>("/api/user/profile/me");
+  const response = await api.get<UserWithProfileResponse>("/api/users/me/profile");
   return response.data;
 };

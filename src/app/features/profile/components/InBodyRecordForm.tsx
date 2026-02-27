@@ -13,10 +13,6 @@ export interface InBodyRecordFormProps {
    */
   isLoading?: boolean;
 
-  /**
-   * 폼에 초기 userId가 필요한 경우
-   */
-  userId?: number;
 }
 
 /**
@@ -26,9 +22,8 @@ export interface InBodyRecordFormProps {
  * UI는 순수 컴포넌트로 설계되어 서버 의존성이 없으며,
  * 부모 컴포넌트에서 mutation 실행을 담당
  */
-export const InBodyRecordForm = ({onSubmit, isLoading = false, userId,}: InBodyRecordFormProps) => {
+export const InBodyRecordForm = ({onSubmit, isLoading = false}: InBodyRecordFormProps) => {
   const [formData, setFormData] = useState<InBodyRecordRequest>({
-    userId: userId ?? 0,
     weight: 0,
     skeletalMuscleMass: 0,
     bodyFatMass: 0,
@@ -57,12 +52,6 @@ export const InBodyRecordForm = ({onSubmit, isLoading = false, userId,}: InBodyR
    */
   const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-
-    // 기본 검증: userId와 필수 필드 확인
-    if (!formData.userId) {
-      alert("사용자 정보가 필요합니다.");
-      return;
-    }
 
     if (formData.weight <= 0) {
       alert("체중을 입력해주세요.");
