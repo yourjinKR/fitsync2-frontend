@@ -34,7 +34,7 @@ describe("WorkoutListPage", () => {
     });
   });
 
-  it("updates query params when sort/page controls change", () => {
+  it("정렬/페이지 변경 시 쿼리 파라미터를 갱신한다", () => {
     render(
       <MemoryRouter>
         <WorkoutListPage />
@@ -56,7 +56,9 @@ describe("WorkoutListPage", () => {
       sort: "id,asc",
     });
 
-    fireEvent.click(screen.getByRole("button", { name: "����" }));
+    const buttons = screen.getAllByRole("button");
+    fireEvent.click(buttons[1]);
+
     expect(useWorkoutListQueryMock).toHaveBeenLastCalledWith({
       ownerId: undefined,
       page: 1,

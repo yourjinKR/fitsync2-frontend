@@ -12,7 +12,7 @@ vi.mock("../../../features/exercise/hooks/useExerciseListQuery", () => ({
 }));
 
 const pageResponse: ExerciseListResponse = {
-  content: [{ id: 1, name: "��ġ������", category: "FITNESS", hidden: false, detailParts: [] }],
+  content: [{ id: 1, name: "벤치프레스", category: "FITNESS", hidden: false, detailParts: [] }],
   totalElements: 20,
   totalPages: 2,
   size: 10,
@@ -34,7 +34,7 @@ describe("ExerciseListPage", () => {
     });
   });
 
-  it("updates query params when sort/page controls change", () => {
+  it("정렬/페이지 변경 시 쿼리 파라미터를 갱신한다", () => {
     render(
       <MemoryRouter>
         <ExerciseListPage />
@@ -58,7 +58,9 @@ describe("ExerciseListPage", () => {
       sort: ["id,asc"],
     });
 
-    fireEvent.click(screen.getByRole("button", { name: "����" }));
+    const buttons = screen.getAllByRole("button");
+    fireEvent.click(buttons[1]);
+
     expect(useExerciseListQueryMock).toHaveBeenLastCalledWith({
       category: undefined,
       hidden: false,

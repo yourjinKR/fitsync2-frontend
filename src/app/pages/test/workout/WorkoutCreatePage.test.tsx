@@ -54,7 +54,7 @@ describe("WorkoutCreatePage", () => {
 
     mocks.useExerciseListQueryMock.mockReturnValue({
       data: {
-        content: [{ id: 1, name: "��ġ������", category: "FITNESS", hidden: false, detailParts: [] }],
+        content: [{ id: 1, name: "벤치프레스", category: "FITNESS", hidden: false, detailParts: [] }],
       },
       isLoading: false,
     });
@@ -67,7 +67,7 @@ describe("WorkoutCreatePage", () => {
     });
   });
 
-  it("TS-FE-WORKOUT-001: navigates to detail after successful create", async () => {
+  it("TS-FE-WORKOUT-001: 생성 성공 시 상세 페이지로 이동한다", async () => {
     mocks.mutateAsyncMock.mockResolvedValue({ id: 33 });
 
     render(
@@ -78,8 +78,8 @@ describe("WorkoutCreatePage", () => {
 
     fireEvent.change(screen.getByLabelText(/writerId/i), { target: { value: "1" } });
     fireEvent.change(screen.getByLabelText(/ownerId/i), { target: { value: "1" } });
-    fireEvent.click(screen.getByRole("button", { name: "�߰�" }));
-    fireEvent.click(screen.getByRole("button", { name: "����" }));
+    fireEvent.click(screen.getByRole("button", { name: "추가" }));
+    fireEvent.click(screen.getByRole("button", { name: "생성" }));
 
     expect(mocks.mutateAsyncMock).toHaveBeenCalledTimes(1);
     await waitFor(() => {
@@ -87,7 +87,7 @@ describe("WorkoutCreatePage", () => {
     });
   });
 
-  it("TS-FE-WORKOUT-004: shows API error message and field errors", () => {
+  it("TS-FE-WORKOUT-004: API 오류 메시지와 필드 오류를 표시한다", () => {
     mocks.useCreateWorkoutMutationMock.mockReturnValue({
       mutateAsync: mocks.mutateAsyncMock,
       isPending: false,
@@ -101,7 +101,7 @@ describe("WorkoutCreatePage", () => {
       </MemoryRouter>,
     );
 
-    expect(screen.getByText("����: Invalid parameter included")).toBeTruthy();
+    expect(screen.getByText("오류: Invalid parameter included")).toBeTruthy();
     expect(screen.getByText("writerId: must be positive")).toBeTruthy();
   });
 });

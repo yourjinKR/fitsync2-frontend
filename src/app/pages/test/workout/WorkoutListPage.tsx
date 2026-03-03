@@ -32,15 +32,15 @@ export function WorkoutListPage() {
   });
 
   return (
-    <PageShell title="Workout Record List">
+    <PageShell title="운동 기록 목록">
       <Row>
-        <Link to="/test/workouts/new">Create Workout Record</Link>
-        <Link to="/">Home</Link>
+        <Link to="/test/workouts/new">운동 기록 생성</Link>
+        <Link to="/">홈으로</Link>
       </Row>
 
       <Row>
-        <FormField label="ownerId filter" htmlFor="workout-owner-id">
-          <input id="workout-owner-id" type="number" value={ownerIdInput} onChange={(e) => { setOwnerIdInput(e.target.value); setPage(0); }} placeholder="e.g. 1" />
+        <FormField label="ownerId 필터" htmlFor="workout-owner-id">
+          <input id="workout-owner-id" type="number" value={ownerIdInput} onChange={(e) => { setOwnerIdInput(e.target.value); setPage(0); }} placeholder="예: 1" />
         </FormField>
 
         <FormField label="size" htmlFor="workout-size">
@@ -61,8 +61,8 @@ export function WorkoutListPage() {
         <PaginationControls page={page} totalPages={data?.totalPages ?? 1} onPrev={() => setPage((prev) => Math.max(0, prev - 1))} onNext={() => setPage((prev) => prev + 1)} />
       </Row>
 
-      {isLoading ? <LoadingState message="Loading workout records..." /> : null}
-      {isError ? <ErrorState message="Failed to load workout records" error={error} /> : null}
+      {isLoading ? <LoadingState message="운동 기록 목록 조회 중..." /> : null}
+      {isError ? <ErrorState message="운동 기록 목록 조회 실패" error={error} /> : null}
 
       {!isLoading && !isError ? (
         data?.content.length ? (
@@ -74,7 +74,7 @@ export function WorkoutListPage() {
             ))}
           </ul>
         ) : (
-          <EmptyState message="No workout records found." />
+          <EmptyState message="조회된 운동 기록이 없습니다." />
         )
       ) : null}
     </PageShell>
