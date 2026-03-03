@@ -7,7 +7,7 @@ import type { WorkoutListRequest, WorkoutListResponse } from "../../../features/
 
 const useWorkoutListQueryMock = vi.fn();
 
-vi.mock("../features/workout/hooks/useWorkoutListQuery", () => ({
+vi.mock("../../../features/workout/hooks/useWorkoutListQuery", () => ({
   useWorkoutListQuery: (params?: WorkoutListRequest) => useWorkoutListQueryMock(params),
 }));
 
@@ -17,8 +17,10 @@ const pageResponse: WorkoutListResponse = {
   totalPages: 2,
   size: 10,
   number: 0,
+  numberOfElements: 1,
   first: true,
   last: false,
+  empty: false,
 };
 
 describe("WorkoutListPage", () => {
@@ -54,7 +56,7 @@ describe("WorkoutListPage", () => {
       sort: "id,asc",
     });
 
-    fireEvent.click(screen.getByRole("button", { name: "ë‹¤ìŒ" }));
+    fireEvent.click(screen.getByRole("button", { name: "´ÙÀ½" }));
     expect(useWorkoutListQueryMock).toHaveBeenLastCalledWith({
       ownerId: undefined,
       page: 1,
@@ -63,4 +65,3 @@ describe("WorkoutListPage", () => {
     });
   });
 });
-

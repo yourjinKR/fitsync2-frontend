@@ -1,9 +1,5 @@
 import { api } from "../../../shared/apis/http";
-import type { InBodyRecordRequest } from "../types/profile";
-
-export interface InBodyRecordResponse {
-  id: number;
-}
+import type { InBodyRecordRequest, InBodyRecordResponse } from "../types/profile";
 
 /**
  * 인바디 기록 생성

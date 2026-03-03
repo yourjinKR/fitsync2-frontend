@@ -21,32 +21,27 @@ vi.mock("react-router-dom", async () => {
   };
 });
 
-vi.mock("../features/exercise/hooks/useExerciseListQuery", () => ({
+vi.mock("../../../features/exercise/hooks/useExerciseListQuery", () => ({
   useExerciseListQuery: () => mocks.useExerciseListQueryMock(),
 }));
 
-vi.mock("../features/workout/hooks/useCreateWorkoutMutation", () => ({
+vi.mock("../../../features/workout/hooks/useCreateWorkoutMutation", () => ({
   useCreateWorkoutMutation: () => mocks.useCreateWorkoutMutationMock(),
 }));
 
 const createApiError = () => {
-  const axiosError = new AxiosError(
-    "Request failed",
-    undefined,
-    undefined,
-    undefined,
-    {
-      status: 400,
-      statusText: "Bad Request",
-      headers: {},
-      config: {} as never,
-      data: {
-        code: "INVALID_PARAMETER",
-        message: "Invalid parameter included",
-        errors: [{ field: "writerId", message: "must be positive" }],
-      },
+  const axiosError = new AxiosError("Request failed", undefined, undefined, undefined, {
+    status: 400,
+    statusText: "Bad Request",
+    headers: {},
+    config: {} as never,
+    data: {
+      code: "INVALID_PARAMETER",
+      message: "Invalid parameter included",
+      errors: [{ field: "writerId", message: "must be positive" }],
     },
-  );
+  });
+
   return new ApiError(axiosError);
 };
 
@@ -59,7 +54,7 @@ describe("WorkoutCreatePage", () => {
 
     mocks.useExerciseListQueryMock.mockReturnValue({
       data: {
-        content: [{ id: 1, name: "ë²¤ì¹˜í”„ë ˆìŠ¤", category: "FITNESS", hidden: false }],
+        content: [{ id: 1, name: "º¥Ä¡ÇÁ·¹½º", category: "FITNESS", hidden: false, detailParts: [] }],
       },
       isLoading: false,
     });
@@ -83,8 +78,8 @@ describe("WorkoutCreatePage", () => {
 
     fireEvent.change(screen.getByLabelText(/writerId/i), { target: { value: "1" } });
     fireEvent.change(screen.getByLabelText(/ownerId/i), { target: { value: "1" } });
-    fireEvent.click(screen.getByRole("button", { name: "ì¶”ê°€" }));
-    fireEvent.click(screen.getByRole("button", { name: "ìƒì„±" }));
+    fireEvent.click(screen.getByRole("button", { name: "Ãß°¡" }));
+    fireEvent.click(screen.getByRole("button", { name: "»ý¼º" }));
 
     expect(mocks.mutateAsyncMock).toHaveBeenCalledTimes(1);
     await waitFor(() => {
@@ -106,7 +101,7 @@ describe("WorkoutCreatePage", () => {
       </MemoryRouter>,
     );
 
-    expect(screen.getByText("ì˜¤ë¥˜: Invalid parameter included")).toBeTruthy();
+    expect(screen.getByText("¿À·ù: Invalid parameter included")).toBeTruthy();
     expect(screen.getByText("writerId: must be positive")).toBeTruthy();
   });
 });

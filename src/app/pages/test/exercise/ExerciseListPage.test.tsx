@@ -7,18 +7,20 @@ import type { ExerciseListRequest, ExerciseListResponse } from "../../../feature
 
 const useExerciseListQueryMock = vi.fn();
 
-vi.mock("../features/exercise/hooks/useExerciseListQuery", () => ({
+vi.mock("../../../features/exercise/hooks/useExerciseListQuery", () => ({
   useExerciseListQuery: (params?: ExerciseListRequest) => useExerciseListQueryMock(params),
 }));
 
 const pageResponse: ExerciseListResponse = {
-  content: [{ id: 1, name: "ë²¤ì¹˜í”„ë ˆìŠ¤", category: "FITNESS", hidden: false }],
+  content: [{ id: 1, name: "º¥Ä¡ÇÁ·¹½º", category: "FITNESS", hidden: false, detailParts: [] }],
   totalElements: 20,
   totalPages: 2,
   size: 10,
   number: 0,
+  numberOfElements: 1,
   first: true,
   last: false,
+  empty: false,
 };
 
 describe("ExerciseListPage", () => {
@@ -56,7 +58,7 @@ describe("ExerciseListPage", () => {
       sort: ["id,asc"],
     });
 
-    fireEvent.click(screen.getByRole("button", { name: "ë‹¤ìŒ" }));
+    fireEvent.click(screen.getByRole("button", { name: "´ÙÀ½" }));
     expect(useExerciseListQueryMock).toHaveBeenLastCalledWith({
       category: undefined,
       hidden: false,
@@ -66,4 +68,3 @@ describe("ExerciseListPage", () => {
     });
   });
 });
-

@@ -119,6 +119,7 @@ export type ExerciseListItemResponse = {
   name: string;
   category: ExerciseCategory;
   hidden: boolean;
+  detailParts: BodyDetailPartListResponse[];
 };
 
 export type PageResponse<T> = {
@@ -127,8 +128,10 @@ export type PageResponse<T> = {
   totalPages: number;
   size: number;
   number: number;
+  numberOfElements: number;
   first: boolean;
   last: boolean;
+  empty: boolean;
 };
 
 export type ExerciseListResponse = PageResponse<ExerciseListItemResponse>;
