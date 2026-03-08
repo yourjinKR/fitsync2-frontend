@@ -63,6 +63,22 @@ const TopBar = styled.div`
   margin-bottom: 20px;
 `;
 
+const TopActions = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 8px;
+`;
+
+const SettingsButton = styled.button`
+  padding: 8px 12px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface-elevated);
+  color: var(--color-text-primary);
+  cursor: pointer;
+  font-weight: 600;
+`;
+
 const StyledLogoutButton = styled(LogoutButton)`
   padding: 8px 16px;
   background: var(--color-error);
@@ -223,7 +239,12 @@ const MyPage = () => {
       <Page>
         <TopBar>
           <h1>로딩 중..</h1>
-          <StyledLogoutButton />
+          <TopActions>
+            <SettingsButton type="button" onClick={() => navigate("/me/settings")}>
+              설정
+            </SettingsButton>
+            <StyledLogoutButton />
+          </TopActions>
         </TopBar>
       </Page>
     );
@@ -239,7 +260,12 @@ const MyPage = () => {
         <Page>
           <TopBar>
             <h1>프로필 생성</h1>
-            <StyledLogoutButton />
+            <TopActions>
+              <SettingsButton type="button" onClick={() => navigate("/me/settings")}>
+                설정
+              </SettingsButton>
+              <StyledLogoutButton />
+            </TopActions>
           </TopBar>
           <HelperText>프로필을 생성하여 운동 목표와 정보를 설정해 주세요.</HelperText>
           <Form
@@ -312,7 +338,12 @@ const MyPage = () => {
     <Page>
       <TopBar>
         <h1>마이 페이지</h1>
-        <StyledLogoutButton />
+        <TopActions>
+          <SettingsButton type="button" onClick={() => navigate("/me/settings")}>
+            설정
+          </SettingsButton>
+          <StyledLogoutButton />
+        </TopActions>
       </TopBar>
       <HelperText>{data?.user.name}</HelperText>
       <InfoCard>

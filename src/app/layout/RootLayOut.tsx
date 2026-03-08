@@ -1,6 +1,5 @@
 import { Outlet, useLocation } from "react-router-dom";
 import styled from "styled-components";
-import { ThemeToggle } from "../shared/components/ui/ThemeToggle";
 
 const Shell = styled.div<{ $isTestRoute: boolean }>`
   min-height: 100dvh;
@@ -8,13 +7,6 @@ const Shell = styled.div<{ $isTestRoute: boolean }>`
   flex-direction: column;
   background: var(--color-bg);
   align-items: ${({ $isTestRoute }) => ($isTestRoute ? "stretch" : "center")};
-`;
-
-const Header = styled.header`
-  display: flex;
-  justify-content: flex-end;
-  padding: 12px 16px 8px;
-  width: 100%;
 `;
 
 const Content = styled.main<{ $isTestRoute: boolean }>`
@@ -52,9 +44,6 @@ export function RootLayout() {
 
   return (
     <Shell $isTestRoute={isTestRoute}>
-      <Header>
-        <ThemeToggle />
-      </Header>
       <Content $isTestRoute={isTestRoute}>
         <Outlet />
       </Content>

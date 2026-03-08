@@ -8,6 +8,7 @@ import MyPage from "./pages/MyPage";
 import LoginPage from "./pages/LoginPage";
 import SignupPage from "./pages/SignupPage";
 import { InBodyRecordPage } from "./pages/InBodyRecordPage";
+import { SettingsPage } from "./pages/SettingsPage";
 import { ExerciseListPage } from "./pages/test/exercise/ExerciseListPage";
 import { ExerciseCreatePage } from "./pages/test/exercise/ExerciseCreatePage";
 import { ExerciseDetailPage } from "./pages/test/exercise/ExerciseDetailPage";
@@ -28,6 +29,7 @@ export const router = createBrowserRouter([
       { path: "/cookie", element: <CookiePage /> },
       { path: "/me", element: <MyPage /> },
       { path: "/me/inbody", element: <InBodyRecordPage /> },
+      { path: "/me/settings", element: <SettingsPage /> },
 
 
       { path: "/test/home", element: <TestHomePage /> },
