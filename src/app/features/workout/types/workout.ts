@@ -37,9 +37,6 @@ export type WorkoutListRequest = {
 export type WorkoutListItemResponse = {
   id: number;
   createdAt: string;
-  ownerId?: number;
-  writerId?: number;
-  memo?: string;
 };
 
 export type PageResponse<T> = {
@@ -48,8 +45,10 @@ export type PageResponse<T> = {
   totalPages: number;
   size: number;
   number: number;
+  numberOfElements: number;
   first: boolean;
   last: boolean;
+  empty: boolean;
 };
 
 export type WorkoutListResponse = PageResponse<WorkoutListItemResponse>;

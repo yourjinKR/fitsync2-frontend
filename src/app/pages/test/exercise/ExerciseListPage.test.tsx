@@ -7,18 +7,20 @@ import type { ExerciseListRequest, ExerciseListResponse } from "../../../feature
 
 const useExerciseListQueryMock = vi.fn();
 
-vi.mock("../features/exercise/hooks/useExerciseListQuery", () => ({
+vi.mock("../../../features/exercise/hooks/useExerciseListQuery", () => ({
   useExerciseListQuery: (params?: ExerciseListRequest) => useExerciseListQueryMock(params),
 }));
 
 const pageResponse: ExerciseListResponse = {
-  content: [{ id: 1, name: "벤치프레스", category: "FITNESS", hidden: false }],
+  content: [{ id: 1, name: "벤치프레스", category: "FITNESS", hidden: false, detailParts: [] }],
   totalElements: 20,
   totalPages: 2,
   size: 10,
   number: 0,
+  numberOfElements: 1,
   first: true,
   last: false,
+  empty: false,
 };
 
 describe("ExerciseListPage", () => {
@@ -32,7 +34,7 @@ describe("ExerciseListPage", () => {
     });
   });
 
-  it("updates query params when sort/page controls change", () => {
+  it("정렬/페이지 변경 시 쿼리 파라미터를 갱신한다", () => {
     render(
       <MemoryRouter>
         <ExerciseListPage />
@@ -56,7 +58,9 @@ describe("ExerciseListPage", () => {
       sort: ["id,asc"],
     });
 
-    fireEvent.click(screen.getByRole("button", { name: "다음" }));
+    const buttons = screen.getAllByRole("button");
+    fireEvent.click(buttons[1]);
+
     expect(useExerciseListQueryMock).toHaveBeenLastCalledWith({
       category: undefined,
       hidden: false,
@@ -66,4 +70,3 @@ describe("ExerciseListPage", () => {
     });
   });
 });
-

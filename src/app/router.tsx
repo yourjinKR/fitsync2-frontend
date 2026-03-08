@@ -14,6 +14,8 @@ import { ExerciseDetailPage } from "./pages/test/exercise/ExerciseDetailPage";
 import { WorkoutListPage } from "./pages/test/workout/WorkoutListPage";
 import { WorkoutCreatePage } from "./pages/test/workout/WorkoutCreatePage";
 import { WorkoutDetailPage } from "./pages/test/workout/WorkoutDetailPage";
+import MyTestGround from "./pages/test/MyTestGround";
+import TestHomePage from "./pages/test/TestHomePage";
 
 export const router = createBrowserRouter([
   {
@@ -26,6 +28,10 @@ export const router = createBrowserRouter([
       { path: "/cookie", element: <CookiePage /> },
       { path: "/me", element: <MyPage /> },
       { path: "/me/inbody", element: <InBodyRecordPage /> },
+
+
+      { path: "/test/home", element: <TestHomePage /> },
+      { path: "/test/my", element: <MyTestGround /> },
       { path: "/test/exercises", element: <ExerciseListPage /> },
       { path: "/test/exercises/new", element: <ExerciseCreatePage /> },
       { path: "/test/exercises/:exerciseId", element: <ExerciseDetailPage /> },

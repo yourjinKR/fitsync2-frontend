@@ -21,32 +21,27 @@ vi.mock("react-router-dom", async () => {
   };
 });
 
-vi.mock("../features/exercise/hooks/useExerciseListQuery", () => ({
+vi.mock("../../../features/exercise/hooks/useExerciseListQuery", () => ({
   useExerciseListQuery: () => mocks.useExerciseListQueryMock(),
 }));
 
-vi.mock("../features/workout/hooks/useCreateWorkoutMutation", () => ({
+vi.mock("../../../features/workout/hooks/useCreateWorkoutMutation", () => ({
   useCreateWorkoutMutation: () => mocks.useCreateWorkoutMutationMock(),
 }));
 
 const createApiError = () => {
-  const axiosError = new AxiosError(
-    "Request failed",
-    undefined,
-    undefined,
-    undefined,
-    {
-      status: 400,
-      statusText: "Bad Request",
-      headers: {},
-      config: {} as never,
-      data: {
-        code: "INVALID_PARAMETER",
-        message: "Invalid parameter included",
-        errors: [{ field: "writerId", message: "must be positive" }],
-      },
+  const axiosError = new AxiosError("Request failed", undefined, undefined, undefined, {
+    status: 400,
+    statusText: "Bad Request",
+    headers: {},
+    config: {} as never,
+    data: {
+      code: "INVALID_PARAMETER",
+      message: "Invalid parameter included",
+      errors: [{ field: "writerId", message: "must be positive" }],
     },
-  );
+  });
+
   return new ApiError(axiosError);
 };
 
@@ -59,7 +54,7 @@ describe("WorkoutCreatePage", () => {
 
     mocks.useExerciseListQueryMock.mockReturnValue({
       data: {
-        content: [{ id: 1, name: "벤치프레스", category: "FITNESS", hidden: false }],
+        content: [{ id: 1, name: "벤치프레스", category: "FITNESS", hidden: false, detailParts: [] }],
       },
       isLoading: false,
     });
@@ -72,7 +67,7 @@ describe("WorkoutCreatePage", () => {
     });
   });
 
-  it("TS-FE-WORKOUT-001: navigates to detail after successful create", async () => {
+  it("TS-FE-WORKOUT-001: 생성 성공 시 상세 페이지로 이동한다", async () => {
     mocks.mutateAsyncMock.mockResolvedValue({ id: 33 });
 
     render(
@@ -92,7 +87,7 @@ describe("WorkoutCreatePage", () => {
     });
   });
 
-  it("TS-FE-WORKOUT-004: shows API error message and field errors", () => {
+  it("TS-FE-WORKOUT-004: API 오류 메시지와 필드 오류를 표시한다", () => {
     mocks.useCreateWorkoutMutationMock.mockReturnValue({
       mutateAsync: mocks.mutateAsyncMock,
       isPending: false,

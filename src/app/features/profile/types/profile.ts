@@ -6,53 +6,57 @@ export type UserProfileRequest = {
   workoutGoals: WorkoutGoal[];
   exerciseCategories: ExerciseCategory[];
   disease?: string;
-  height?: number;
-  weight?: number;
-  skeletalMuscleMass?: number;
-  bodyFatMass?: number;
-  bodyFatPercentage?: number;
-  bmi?: number;
+  height: number;
+  weight: number;
+  skeletalMuscleMass: number;
+  bodyFatMass: number;
+  bodyFatPercentage: number;
+  bmi: number;
 };
 
 export type UserWithProfileResponse = {
-  userId : number,
-  user : UserHeaderInfoResponse,
-  profileId : number,
-  userProfile : UserProfileDetailResponse
+  userId: number;
+  user: UserHeaderInfoResponse;
+  profileId: number;
+  userProfile: UserProfileDetailResponse;
 };
 
 export type UserHeaderInfoResponse = {
-  name : string,
-  hidden : boolean
+  name: string;
+  hidden: boolean;
 };
 
 export type UserProfileDetailResponse = {
-  gender : Gender,
-  birth : LocalDateString,
-  workoutGoals : Set<WorkoutGoal>,
-  exerciseCategories : Set<ExerciseCategory>,
-  disease : string,
-  height : number,
-  weight : number,
-  skeletalMuscleMass : number,
-  bodyFatMass : number,
-  bodyFatPercentage : number,
-  bmi : number
+  gender: Gender;
+  birth: LocalDateString;
+  workoutGoals: WorkoutGoal[];
+  exerciseCategories: ExerciseCategory[];
+  disease: string | null;
+  height: number;
+  weight: number;
+  skeletalMuscleMass: number;
+  bodyFatMass: number;
+  bodyFatPercentage: number;
+  bmi: number;
+};
+
+export type UserProfileResponse = {
+  id: number;
 };
 
 export type InBodyRecordRequest = {
-  weight : number,
-  skeletalMuscleMass : number,
-  bodyFatMass : number,
-  bodyFatPercentage : number,
-  bmi : number,
+  weight: number;
+  skeletalMuscleMass: number;
+  bodyFatMass: number;
+  bodyFatPercentage: number;
+  bmi: number;
 };
 
 export type InBodyRecordResponse = {
-  id : number
+  id: number;
 };
 
-export type WorkoutGoal = 
+export type WorkoutGoal =
   | "WEIGHT_LOSS"
   | "MUSCLE_GAIN"
   | "BODY_BALANCE"
@@ -61,7 +65,7 @@ export type WorkoutGoal =
   | "REHABILITATION"
   | "HEALTH_MAINTENANCE";
 
-export type ExerciseCategory = 
+export type ExerciseCategory =
   | "FITNESS"
   | "CROSSFIT"
   | "YOGA"

@@ -3,38 +3,41 @@ import { useNavigate } from "react-router-dom";
 import { useMutation } from "@tanstack/react-query";
 import { createUser } from "../features/user/apis/createUser";
 import { authApi, ApiError } from "../shared/apis/http";
-import type { UserRequest, Gender, UserRoleType } from "../features/user/types/member";
+import type { UserRequest, UserRoleType } from "../features/user/types/member";
+
+type SignupForm = {
+  loginId: string;
+  password: string;
+  name: string;
+  email: string;
+  roleType: UserRoleType;
+};
 
 const SignupPage = () => {
   const navigate = useNavigate();
   const { mutate: signup, isPending, isError, error } = useMutation({
     mutationFn: (request: UserRequest) => createUser(request),
     onSuccess: () => {
-      alert("회원가입이 완료되었습니다. 로그인해주세요.");
+      alert("회원가입이 완료되었습니다. 로그인해 주세요.");
       navigate("/login");
     },
   });
 
-  const [formData, setFormData] = useState<Partial<UserRequest>>({
+  const [formData, setFormData] = useState<SignupForm>({
     loginId: "",
     password: "",
     name: "",
-    gender: "MALE",
-    birth: "",
     email: "",
     roleType: "MEMBER",
-    isSocial: false,
-    socialProviderType: null,
   });
 
   const [passwordConfirm, setPasswordConfirm] = useState("");
   const [loadingCheckLoginId, setLoadingCheckLoginId] = useState(false);
   const [loginIdAvailable, setLoginIdAvailable] = useState<boolean | null>(null);
 
-  // 로그인 아이디 중복 확인
   const checkLoginIdAvailability = async () => {
     if (!formData.loginId) {
-      alert("아이디를 입력해주세요.");
+      alert("로그인 ID를 입력해 주세요.");
       return;
     }
 
@@ -43,11 +46,7 @@ const SignupPage = () => {
       const response = await authApi.get<boolean>(`/api/users/exists/${formData.loginId}`);
       const exists = response.data;
       setLoginIdAvailable(!exists);
-      if (exists) {
-        alert("이미 사용 중인 아이디입니다.");
-      } else {
-        alert("사용 가능한 아이디입니다.");
-      }
+      alert(exists ? "이미 사용 중인 로그인 ID입니다." : "사용 가능한 로그인 ID입니다.");
     } catch (err) {
       const errorMessage = err instanceof ApiError ? err.message : "중복 확인에 실패했습니다.";
       alert(errorMessage);
@@ -59,36 +58,32 @@ const SignupPage = () => {
   const handleSignup = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    // 유효성 검사
-    if (!formData.loginId || !formData.password || !formData.name || !formData.email || !formData.birth) {
-      alert("필수 항목을 모두 입력해주세요.");
+    if (!formData.loginId || !formData.password || !formData.name || !formData.email) {
+      alert("필수 항목을 모두 입력해 주세요.");
       return;
     }
 
     if (loginIdAvailable === false) {
-      alert("아이디 중복 확인을 해주세요.");
+      alert("다른 로그인 ID를 사용해 주세요.");
       return;
     }
 
     if (formData.password !== passwordConfirm) {
-      alert("비밀번호가 일치하지 않습니다.");
+      alert("비밀번호 확인이 일치하지 않습니다.");
       return;
     }
 
-    if (formData.password && formData.password.length < 6) {
+    if (formData.password.length < 6) {
       alert("비밀번호는 6자 이상이어야 합니다.");
       return;
     }
 
-    // 회원가입 요청
     signup({
       loginId: formData.loginId,
       password: formData.password,
       name: formData.name,
-      gender: (formData.gender || "MALE") as Gender,
-      birth: formData.birth,
+      roleType: formData.roleType,
       email: formData.email,
-      roleType: (formData.roleType || "USER") as UserRoleType,
       isSocial: false,
       socialProviderType: null,
     });
@@ -113,18 +108,17 @@ const SignupPage = () => {
       <h1>회원가입</h1>
 
       <form onSubmit={handleSignup} style={{ display: "flex", flexDirection: "column", gap: "15px" }}>
-        {/* 아이디 */}
         <div>
-          <label style={labelStyle}>아이디 *</label>
+          <label style={labelStyle}>로그인 ID *</label>
           <div style={{ display: "flex", gap: "10px" }}>
             <input
               type="text"
-              value={formData.loginId || ""}
+              value={formData.loginId}
               onChange={(e) => {
                 setFormData({ ...formData, loginId: e.target.value });
                 setLoginIdAvailable(null);
               }}
-              placeholder="아이디를 입력해주세요"
+              placeholder="로그인 ID를 입력해 주세요"
               style={inputStyle}
               disabled={isPending}
             />
@@ -147,98 +141,79 @@ const SignupPage = () => {
           </div>
           {loginIdAvailable !== null && (
             <div style={{ color: loginIdAvailable ? "green" : "red", fontSize: "12px", marginTop: "5px" }}>
-              {loginIdAvailable ? "사용 가능한 아이디입니다." : "이미 사용 중인 아이디입니다."}
+              {loginIdAvailable ? "사용 가능한 로그인 ID입니다." : "이미 사용 중입니다."}
             </div>
           )}
         </div>
 
-        {/* 비밀번호 */}
         <div>
           <label style={labelStyle}>비밀번호 *</label>
           <input
             type="password"
-            value={formData.password || ""}
+            value={formData.password}
             onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-            placeholder="비밀번호를 입력해주세요 (6자 이상)"
+            placeholder="6자 이상 입력해 주세요"
             style={inputStyle}
             disabled={isPending}
           />
         </div>
 
-        {/* 비밀번호 확인 */}
         <div>
           <label style={labelStyle}>비밀번호 확인 *</label>
           <input
             type="password"
             value={passwordConfirm}
             onChange={(e) => setPasswordConfirm(e.target.value)}
-            placeholder="비밀번호를 다시 입력해주세요"
+            placeholder="비밀번호를 다시 입력해 주세요"
             style={inputStyle}
             disabled={isPending}
           />
         </div>
 
-        {/* 이름 */}
         <div>
           <label style={labelStyle}>이름 *</label>
           <input
             type="text"
-            value={formData.name || ""}
+            value={formData.name}
             onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-            placeholder="이름을 입력해주세요"
+            placeholder="이름을 입력해 주세요"
             style={inputStyle}
             disabled={isPending}
           />
         </div>
 
-        {/* 성별 */}
-        <div>
-          <label style={labelStyle}>성별</label>
-          <select
-            value={formData.gender || "MALE"}
-            onChange={(e) => setFormData({ ...formData, gender: e.target.value as Gender })}
-            style={inputStyle}
-            disabled={isPending}
-          >
-            <option value="MALE">남성</option>
-            <option value="FEMALE">여성</option>
-            <option value="UNKNOWN">선택 안 함</option>
-          </select>
-        </div>
-
-        {/* 생년월일 */}
-        <div>
-          <label style={labelStyle}>생년월일 *</label>
-          <input
-            type="date"
-            value={formData.birth || ""}
-            onChange={(e) => setFormData({ ...formData, birth: e.target.value })}
-            style={inputStyle}
-            disabled={isPending}
-          />
-        </div>
-
-        {/* 이메일 */}
         <div>
           <label style={labelStyle}>이메일 *</label>
           <input
             type="email"
-            value={formData.email || ""}
+            value={formData.email}
             onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-            placeholder="이메일을 입력해주세요"
+            placeholder="이메일을 입력해 주세요"
             style={inputStyle}
             disabled={isPending}
           />
         </div>
 
-        {/* 에러 메시지 */}
+        <div>
+          <label style={labelStyle}>역할</label>
+          <select
+            value={formData.roleType}
+            onChange={(e) => setFormData({ ...formData, roleType: e.target.value as UserRoleType })}
+            style={inputStyle}
+            disabled={isPending}
+          >
+            <option value="MEMBER">MEMBER</option>
+            <option value="TRAINER">TRAINER</option>
+            <option value="ADMIN">ADMIN</option>
+          </select>
+        </div>
+
         {isError && (
           <div style={{ color: "red", fontSize: "14px", padding: "10px", backgroundColor: "#ffe0e0", borderRadius: "4px" }}>
             {error instanceof Error ? error.message : "회원가입에 실패했습니다."}
           </div>
         )}
 
-        {/* 가입 버튼 */}
         <button
           type="submit"
           disabled={isPending}
@@ -253,10 +228,9 @@ const SignupPage = () => {
             marginTop: "10px",
           }}
         >
-          {isPending ? "회원가입 중..." : "회원가입"}
+          {isPending ? "가입 중..." : "회원가입"}
         </button>
 
-        {/* 로그인 링크 */}
         <div style={{ textAlign: "center", marginTop: "10px" }}>
           <span>이미 계정이 있으신가요? </span>
           <button
