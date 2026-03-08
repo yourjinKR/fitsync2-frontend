@@ -1,9 +1,98 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import styled from "styled-components";
 import { useLoginMutation } from "../features/user/hooks/useLoginMutation";
 import type { SocialProviderType } from "../features/user/types/member";
 
 const BACKEND_API_BASE_URL = import.meta.env.VITE_BACKEND_API_BASE_URL;
+
+const Page = styled.div`
+  max-width: 400px;
+  margin: 50px auto;
+  padding: 20px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-1);
+`;
+
+const Section = styled.div`
+  margin-bottom: 15px;
+`;
+
+const Label = styled.label`
+  display: block;
+  margin-bottom: 5px;
+  font-weight: 700;
+`;
+
+const Field = styled.input`
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface);
+`;
+
+const ErrorText = styled.div`
+  color: var(--color-error);
+  margin-bottom: 15px;
+  font-size: 14px;
+`;
+
+const PrimaryButton = styled.button`
+  width: 100%;
+  padding: 10px;
+  background: var(--color-brand);
+  color: #fff;
+  border: 1px solid transparent;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  font-weight: 700;
+  margin-bottom: 20px;
+  box-shadow: var(--shadow-1);
+
+  &:hover:not(:disabled) {
+    background: var(--color-brand-strong);
+  }
+`;
+
+const Center = styled.div`
+  text-align: center;
+`;
+
+const Divider = styled.div`
+  text-align: center;
+  margin: 20px 0;
+  color: var(--color-text-muted);
+`;
+
+const LinkButton = styled.button`
+  background: none;
+  border: none;
+  color: var(--color-brand);
+  cursor: pointer;
+  text-decoration: underline;
+  padding: 0;
+`;
+
+const SocialStack = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+`;
+
+const SocialButton = styled.button<{ $background: string; $color?: string }>`
+  padding: 10px;
+  background: ${({ $background }) => $background};
+  color: ${({ $color }) => $color ?? "#fff"};
+  border: 1px solid transparent;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  font-weight: 700;
+  font-size: 14px;
+  box-shadow: var(--shadow-1);
+`;
 
 const LoginPage = () => {
   const navigate = useNavigate();
@@ -34,152 +123,82 @@ const LoginPage = () => {
   };
 
   return (
-    <div style={{ maxWidth: "400px", margin: "50px auto", padding: "20px" }}>
+    <Page>
       <h1>로그인</h1>
 
       {/* 자체 로그인 폼 */}
       <form onSubmit={handleLogin}>
-        <div style={{ marginBottom: "15px" }}>
-          <label htmlFor="loginId" style={{ display: "block", marginBottom: "5px", fontWeight: "bold" }}>
-            아이디
-          </label>
-          <input
+        <Section>
+          <Label htmlFor="loginId">아이디</Label>
+          <Field
             id="loginId"
             type="text"
             value={loginId}
             onChange={(e) => setLoginId(e.target.value)}
             placeholder="아이디를 입력해주세요"
-            style={{
-              width: "100%",
-              padding: "8px",
-              border: "1px solid #ccc",
-              borderRadius: "4px",
-              boxSizing: "border-box",
-            }}
             disabled={isPending}
           />
-        </div>
+        </Section>
 
-        <div style={{ marginBottom: "15px" }}>
-          <label htmlFor="password" style={{ display: "block", marginBottom: "5px", fontWeight: "bold" }}>
-            비밀번호
-          </label>
-          <input
+        <Section>
+          <Label htmlFor="password">비밀번호</Label>
+          <Field
             id="password"
             type="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             placeholder="비밀번호를 입력해주세요"
-            style={{
-              width: "100%",
-              padding: "8px",
-              border: "1px solid #ccc",
-              borderRadius: "4px",
-              boxSizing: "border-box",
-            }}
             disabled={isPending}
           />
-        </div>
+        </Section>
 
         {isError && (
-          <div style={{ color: "red", marginBottom: "15px", fontSize: "14px" }}>
+          <ErrorText>
             {error instanceof Error ? error.message : "로그인에 실패했습니다."}
-          </div>
+          </ErrorText>
         )}
 
-        <button
-          type="submit"
-          disabled={isPending}
-          style={{
-            width: "100%",
-            padding: "10px",
-            backgroundColor: isPending ? "#ccc" : "#007bff",
-            color: "white",
-            border: "none",
-            borderRadius: "4px",
-            cursor: isPending ? "default" : "pointer",
-            fontWeight: "bold",
-            marginBottom: "20px",
-          }}
-        >
+        <PrimaryButton type="submit" disabled={isPending}>
           {isPending ? "로그인 중..." : "로그인"}
-        </button>
+        </PrimaryButton>
       </form>
 
       {/* 회원가입 링크 */}
-      <div style={{ textAlign: "center", marginBottom: "20px" }}>
+      <Center style={{ marginBottom: "20px" }}>
         <span>계정이 없으신가요? </span>
-        <button
-          onClick={() => navigate("/signup")}
-          style={{
-            background: "none",
-            border: "none",
-            color: "#007bff",
-            cursor: "pointer",
-            textDecoration: "underline",
-            padding: 0,
-          }}
-        >
+        <LinkButton onClick={() => navigate("/signup")}>
           회원가입
-        </button>
-      </div>
+        </LinkButton>
+      </Center>
 
       {/* 구분선 */}
-      <div style={{ textAlign: "center", margin: "20px 0", color: "#999" }}>
-        또는
-      </div>
+      <Divider>또는</Divider>
 
       {/* 소셜 로그인 버튼 */}
-      <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
-        <button
+      <SocialStack>
+        <SocialButton
           onClick={() => handleSocialLogin("NAVER")}
-          style={{
-            padding: "10px",
-            backgroundColor: "#00c73c",
-            color: "white",
-            border: "none",
-            borderRadius: "4px",
-            cursor: "pointer",
-            fontWeight: "bold",
-            fontSize: "14px",
-          }}
+          $background="#00c73c"
         >
           Naver로 계속하기
-        </button>
+        </SocialButton>
 
-        <button
+        <SocialButton
           onClick={() => handleSocialLogin("GOOGLE")}
-          style={{
-            padding: "10px",
-            backgroundColor: "#db4437",
-            color: "white",
-            border: "none",
-            borderRadius: "4px",
-            cursor: "pointer",
-            fontWeight: "bold",
-            fontSize: "14px",
-          }}
+          $background="#db4437"
         >
           Google로 계속하기
-        </button>
+        </SocialButton>
 
-        <button
+        <SocialButton
           onClick={() => handleSocialLogin("KAKAO")}
-          style={{
-            padding: "10px",
-            backgroundColor: "#fee500",
-            color: "#3c1e1e",
-            border: "none",
-            borderRadius: "4px",
-            cursor: "pointer",
-            fontWeight: "bold",
-            fontSize: "14px",
-          }}
+          $background="#fee500"
+          $color="#3c1e1e"
         >
           Kakao로 계속하기
-        </button>
-      </div>
-    </div>
+        </SocialButton>
+      </SocialStack>
+    </Page>
   );
 };
 

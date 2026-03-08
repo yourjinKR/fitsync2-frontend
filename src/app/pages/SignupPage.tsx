@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useMutation } from "@tanstack/react-query";
+import styled from "styled-components";
 import { createUser } from "../features/user/apis/createUser";
 import { authApi, ApiError } from "../shared/apis/http";
 import type { UserRequest, UserRoleType } from "../features/user/types/member";
@@ -12,6 +13,104 @@ type SignupForm = {
   email: string;
   roleType: UserRoleType;
 };
+
+const Page = styled.div`
+  max-width: 500px;
+  margin: 50px auto;
+  padding: 20px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-1);
+`;
+
+const Form = styled.form`
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+`;
+
+const Label = styled.label`
+  display: block;
+  margin-bottom: 6px;
+  font-weight: 700;
+`;
+
+const Field = styled.input`
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface);
+`;
+
+const Select = styled.select`
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface);
+`;
+
+const Row = styled.div`
+  display: flex;
+  gap: 10px;
+`;
+
+const ActionButton = styled.button`
+  padding: 8px 15px;
+  background: var(--color-surface-elevated);
+  color: var(--color-text-primary);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  white-space: nowrap;
+`;
+
+const PrimaryButton = styled.button`
+  padding: 10px;
+  background: var(--color-brand);
+  color: #fff;
+  border: 1px solid transparent;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  font-weight: 700;
+  margin-top: 10px;
+  box-shadow: var(--shadow-1);
+
+  &:hover:not(:disabled) {
+    background: var(--color-brand-strong);
+  }
+`;
+
+const ErrorBox = styled.div`
+  color: var(--color-error);
+  font-size: 14px;
+  padding: 10px;
+  background: color-mix(in oklab, var(--color-error) 12%, var(--color-surface));
+  border: 1px solid color-mix(in oklab, var(--color-error) 28%, var(--color-border));
+  border-radius: var(--radius-sm);
+`;
+
+const AvailabilityText = styled.div<{ $available: boolean }>`
+  color: ${({ $available }) => ($available ? "var(--color-success)" : "var(--color-error)")};
+  font-size: 12px;
+  margin-top: 5px;
+`;
+
+const Center = styled.div`
+  text-align: center;
+  margin-top: 10px;
+`;
+
+const LinkButton = styled.button`
+  background: none;
+  border: none;
+  color: var(--color-brand);
+  cursor: pointer;
+  text-decoration: underline;
+  padding: 0;
+`;
 
 const SignupPage = () => {
   const navigate = useNavigate();
@@ -89,29 +188,15 @@ const SignupPage = () => {
     });
   };
 
-  const inputStyle = {
-    width: "100%",
-    padding: "8px",
-    border: "1px solid #ccc",
-    borderRadius: "4px",
-    boxSizing: "border-box" as const,
-  };
-
-  const labelStyle = {
-    display: "block" as const,
-    marginBottom: "5px",
-    fontWeight: "bold" as const,
-  };
-
   return (
-    <div style={{ maxWidth: "500px", margin: "50px auto", padding: "20px" }}>
+    <Page>
       <h1>회원가입</h1>
 
-      <form onSubmit={handleSignup} style={{ display: "flex", flexDirection: "column", gap: "15px" }}>
+      <Form onSubmit={handleSignup}>
         <div>
-          <label style={labelStyle}>로그인 ID *</label>
-          <div style={{ display: "flex", gap: "10px" }}>
-            <input
+          <Label>로그인 ID *</Label>
+          <Row>
+            <Field
               type="text"
               value={formData.loginId}
               onChange={(e) => {
@@ -119,137 +204,98 @@ const SignupPage = () => {
                 setLoginIdAvailable(null);
               }}
               placeholder="로그인 ID를 입력해 주세요"
-              style={inputStyle}
               disabled={isPending}
             />
-            <button
+            <ActionButton
               type="button"
               onClick={checkLoginIdAvailability}
               disabled={loadingCheckLoginId || isPending || !formData.loginId}
-              style={{
-                padding: "8px 15px",
-                backgroundColor: "#6c757d",
-                color: "white",
-                border: "none",
-                borderRadius: "4px",
-                cursor: "pointer",
-                whiteSpace: "nowrap",
-              }}
             >
               {loadingCheckLoginId ? "확인 중..." : "중복확인"}
-            </button>
-          </div>
+            </ActionButton>
+          </Row>
           {loginIdAvailable !== null && (
-            <div style={{ color: loginIdAvailable ? "green" : "red", fontSize: "12px", marginTop: "5px" }}>
+            <AvailabilityText $available={loginIdAvailable}>
               {loginIdAvailable ? "사용 가능한 로그인 ID입니다." : "이미 사용 중입니다."}
-            </div>
+            </AvailabilityText>
           )}
         </div>
 
         <div>
-          <label style={labelStyle}>비밀번호 *</label>
-          <input
+          <Label>비밀번호 *</Label>
+          <Field
             type="password"
             value={formData.password}
             onChange={(e) => setFormData({ ...formData, password: e.target.value })}
             placeholder="6자 이상 입력해 주세요"
-            style={inputStyle}
             disabled={isPending}
           />
         </div>
 
         <div>
-          <label style={labelStyle}>비밀번호 확인 *</label>
-          <input
+          <Label>비밀번호 확인 *</Label>
+          <Field
             type="password"
             value={passwordConfirm}
             onChange={(e) => setPasswordConfirm(e.target.value)}
             placeholder="비밀번호를 다시 입력해 주세요"
-            style={inputStyle}
             disabled={isPending}
           />
         </div>
 
         <div>
-          <label style={labelStyle}>이름 *</label>
-          <input
+          <Label>이름 *</Label>
+          <Field
             type="text"
             value={formData.name}
             onChange={(e) => setFormData({ ...formData, name: e.target.value })}
             placeholder="이름을 입력해 주세요"
-            style={inputStyle}
             disabled={isPending}
           />
         </div>
 
         <div>
-          <label style={labelStyle}>이메일 *</label>
-          <input
+          <Label>이메일 *</Label>
+          <Field
             type="email"
             value={formData.email}
             onChange={(e) => setFormData({ ...formData, email: e.target.value })}
             placeholder="이메일을 입력해 주세요"
-            style={inputStyle}
             disabled={isPending}
           />
         </div>
 
         <div>
-          <label style={labelStyle}>역할</label>
-          <select
+          <Label>역할</Label>
+          <Select
             value={formData.roleType}
             onChange={(e) => setFormData({ ...formData, roleType: e.target.value as UserRoleType })}
-            style={inputStyle}
             disabled={isPending}
           >
             <option value="MEMBER">MEMBER</option>
             <option value="TRAINER">TRAINER</option>
             <option value="ADMIN">ADMIN</option>
-          </select>
+          </Select>
         </div>
 
         {isError && (
-          <div style={{ color: "red", fontSize: "14px", padding: "10px", backgroundColor: "#ffe0e0", borderRadius: "4px" }}>
+          <ErrorBox>
             {error instanceof Error ? error.message : "회원가입에 실패했습니다."}
-          </div>
+          </ErrorBox>
         )}
 
-        <button
-          type="submit"
-          disabled={isPending}
-          style={{
-            padding: "10px",
-            backgroundColor: isPending ? "#ccc" : "#007bff",
-            color: "white",
-            border: "none",
-            borderRadius: "4px",
-            cursor: isPending ? "default" : "pointer",
-            fontWeight: "bold",
-            marginTop: "10px",
-          }}
-        >
+        <PrimaryButton type="submit" disabled={isPending}>
           {isPending ? "가입 중..." : "회원가입"}
-        </button>
+        </PrimaryButton>
 
-        <div style={{ textAlign: "center", marginTop: "10px" }}>
+        <Center>
           <span>이미 계정이 있으신가요? </span>
-          <button
-            type="button"
-            onClick={() => navigate("/login")}
-            style={{
-              background: "none",
-              border: "none",
-              color: "#007bff",
-              cursor: "pointer",
-              textDecoration: "underline",
-              padding: 0,
-            }}
-          >
+          <LinkButton type="button" onClick={() => navigate("/login")}>
             로그인
-          </button>
-        </div>
-      </form>
-    </div>
+          </LinkButton>
+        </Center>
+      </Form>
+    </Page>
   );
 };
 
