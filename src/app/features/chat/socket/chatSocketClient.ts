@@ -1,5 +1,5 @@
 import { Client } from "@stomp/stompjs";
-import type { ChatMessageResponse } from "../types/chat";
+import type { ChatMessageResponse, ChatNotificationResponse } from "../types/chat";
 
 const BACKEND_API_BASE_URL = import.meta.env.VITE_BACKEND_API_BASE_URL ?? "http://localhost:8080";
 
@@ -16,8 +16,9 @@ export const toWsEndpoint = (baseUrl: string): string => {
 
 type ConnectChatSocketParams = {
   accessToken: string;
-  roomId: number;
+  roomId?: number;
   onMessage: (message: ChatMessageResponse) => void;
+  onNotification: (notification: ChatNotificationResponse) => void;
   onConnectStateChange: (connected: boolean) => void;
 };
 
@@ -25,6 +26,7 @@ export const connectChatSocket = ({
   accessToken,
   roomId,
   onMessage,
+  onNotification,
   onConnectStateChange,
 }: ConnectChatSocketParams): Client => {
   const wsEndpoint = toWsEndpoint(BACKEND_API_BASE_URL);
@@ -36,10 +38,17 @@ export const connectChatSocket = ({
     },
     onConnect: () => {
       onConnectStateChange(true);
-      client.subscribe(`/sub/chat.rooms.${roomId}`, (frame) => {
-        const payload = JSON.parse(frame.body) as ChatMessageResponse;
-        onMessage(payload);
+      client.subscribe("/user/queue/notifications", (frame) => {
+        const payload = JSON.parse(frame.body) as ChatNotificationResponse;
+        onNotification(payload);
       });
+
+      if (typeof roomId === "number") {
+        client.subscribe(`/sub/chat.rooms.${roomId}`, (frame) => {
+          const payload = JSON.parse(frame.body) as ChatMessageResponse;
+          onMessage(payload);
+        });
+      }
     },
     onStompError: () => {
       onConnectStateChange(false);

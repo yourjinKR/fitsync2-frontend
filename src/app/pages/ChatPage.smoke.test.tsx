@@ -14,8 +14,13 @@ const mocks = vi.hoisted(() => {
   const refetchMock = vi.fn();
   const directMutateAsyncMock = vi.fn();
   const groupMutateAsyncMock = vi.fn();
+  const inviteMutateAsyncMock = vi.fn();
+  const markReadMutateMock = vi.fn((_roomId: number, options?: { onSuccess?: () => void }) => {
+    options?.onSuccess?.();
+  });
   const connectChatSocketMock = vi.fn((params: {
     onMessage: (message: ChatMessageResponse) => void;
+    onNotification: (notification: unknown) => void;
     onConnectStateChange: (connected: boolean) => void;
   }) => {
     onMessageHandler = params.onMessage;
@@ -40,9 +45,13 @@ const mocks = vi.hoisted(() => {
     messagesQueryMock: vi.fn(),
     useCreateDirectChatRoomMutationMock: vi.fn(),
     useCreateGroupChatRoomMutationMock: vi.fn(),
+    useInviteToGroupChatRoomMutationMock: vi.fn(),
+    useMarkChatRoomAsReadMutationMock: vi.fn(),
     refetchMock,
     directMutateAsyncMock,
     groupMutateAsyncMock,
+    inviteMutateAsyncMock,
+    markReadMutateMock,
     connectChatSocketMock,
     publishMock,
     deactivateMock,
@@ -67,8 +76,20 @@ vi.mock("../features/chat/hooks/useCreateGroupChatRoomMutation", () => ({
   useCreateGroupChatRoomMutation: () => mocks.useCreateGroupChatRoomMutationMock(),
 }));
 
+vi.mock("../features/chat/hooks/useInviteToGroupChatRoomMutation", () => ({
+  useInviteToGroupChatRoomMutation: () => mocks.useInviteToGroupChatRoomMutationMock(),
+}));
+
+vi.mock("../features/chat/hooks/useMarkChatRoomAsReadMutation", () => ({
+  useMarkChatRoomAsReadMutation: () => mocks.useMarkChatRoomAsReadMutationMock(),
+}));
+
 vi.mock("../features/chat/socket/chatSocketClient", () => ({
-  connectChatSocket: (...args: unknown[]) => mocks.connectChatSocketMock(...args),
+  connectChatSocket: (args: unknown) => mocks.connectChatSocketMock(args as {
+    onMessage: (message: ChatMessageResponse) => void;
+    onNotification: (notification: unknown) => void;
+    onConnectStateChange: (connected: boolean) => void;
+  }),
 }));
 
 describe("ChatPage smoke checklist", () => {
@@ -84,12 +105,16 @@ describe("ChatPage smoke checklist", () => {
     mocks.refetchMock.mockReset();
     mocks.directMutateAsyncMock.mockReset();
     mocks.groupMutateAsyncMock.mockReset();
+    mocks.inviteMutateAsyncMock.mockReset();
+    mocks.markReadMutateMock.mockReset();
     mocks.connectChatSocketMock.mockClear();
 
     mocks.roomsQueryMock.mockReset();
     mocks.messagesQueryMock.mockReset();
     mocks.useCreateDirectChatRoomMutationMock.mockReset();
     mocks.useCreateGroupChatRoomMutationMock.mockReset();
+    mocks.useInviteToGroupChatRoomMutationMock.mockReset();
+    mocks.useMarkChatRoomAsReadMutationMock.mockReset();
 
     mocks.roomsQueryMock.mockReturnValue({
       data: [
@@ -100,6 +125,7 @@ describe("ChatPage smoke checklist", () => {
           participantUserIds: [1, 2],
           lastMessage: "안녕하세요",
           lastMessageAt: "2026-03-24T00:00:00",
+          unreadCount: 0,
         },
       ],
       isLoading: false,
@@ -126,6 +152,16 @@ describe("ChatPage smoke checklist", () => {
       mutateAsync: mocks.groupMutateAsyncMock,
       isPending: false,
     });
+
+    mocks.useInviteToGroupChatRoomMutationMock.mockReturnValue({
+      mutateAsync: mocks.inviteMutateAsyncMock,
+      isPending: false,
+    });
+
+    mocks.useMarkChatRoomAsReadMutationMock.mockReturnValue({
+      mutate: mocks.markReadMutateMock,
+      isPending: false,
+    });
   });
 
   it("SMOKE-CHAT-001: 방 생성 + 방 입장 플로우가 동작한다", async () => {
@@ -145,7 +181,7 @@ describe("ChatPage smoke checklist", () => {
       expect(mocks.refetchMock).toHaveBeenCalled();
     });
 
-    fireEvent.click(screen.getByText("room-1").closest("button") as HTMLButtonElement);
+    fireEvent.click(screen.getByText(/room-1/).closest("button") as HTMLButtonElement);
 
     expect(screen.getByText(/채팅방 #1/)).toBeTruthy();
     expect(mocks.connectChatSocketMock).toHaveBeenCalled();
@@ -158,7 +194,7 @@ describe("ChatPage smoke checklist", () => {
       </MemoryRouter>,
     );
 
-    fireEvent.click(screen.getByText("room-1").closest("button") as HTMLButtonElement);
+    fireEvent.click(screen.getByText(/room-1/).closest("button") as HTMLButtonElement);
 
     await waitFor(() => {
       expect(mocks.connectChatSocketMock).toHaveBeenCalled();
@@ -194,20 +230,20 @@ describe("ChatPage smoke checklist", () => {
       </MemoryRouter>,
     );
 
-    fireEvent.click(screen.getByText("room-1").closest("button") as HTMLButtonElement);
+    fireEvent.click(screen.getByText(/room-1/).closest("button") as HTMLButtonElement);
 
     await waitFor(() => {
-      expect(screen.getByText(/\(연결됨\)/)).toBeTruthy();
+      expect(screen.getByText("실시간 연결됨")).toBeTruthy();
     });
 
     mocks.setConnected(false);
     await waitFor(() => {
-      expect(screen.getByText(/\(연결 중\/끊김\)/)).toBeTruthy();
+      expect(screen.getByText("연결 중/끊김")).toBeTruthy();
     });
 
     mocks.setConnected(true);
     await waitFor(() => {
-      expect(screen.getByText(/\(연결됨\)/)).toBeTruthy();
+      expect(screen.getByText("실시간 연결됨")).toBeTruthy();
     });
   });
 });

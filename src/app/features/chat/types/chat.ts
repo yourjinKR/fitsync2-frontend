@@ -12,6 +12,7 @@ export type ChatRoomListResponse = {
   participantUserIds: number[];
   lastMessage?: string | null;
   lastMessageAt?: string | null;
+  unreadCount: number;
 };
 
 export type ChatMessageResponse = {
@@ -37,6 +38,21 @@ export type DirectChatRoomCreateRequest = {
 export type GroupChatRoomCreateRequest = {
   name: string;
   participantUserIds: number[];
+};
+
+export type ChatRoomInviteRequest = {
+  participantUserIds: number[];
+};
+
+export type ChatNotificationType = "INVITE" | "NEW_MESSAGE";
+
+export type ChatNotificationResponse = {
+  type: ChatNotificationType;
+  roomId: number;
+  roomName?: string | null;
+  senderName?: string | null;
+  message: string;
+  createdAt: string;
 };
 
 export type PageResponse<T> = {
