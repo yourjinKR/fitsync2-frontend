@@ -3,10 +3,11 @@ import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/re
 import { MemoryRouter } from "react-router-dom";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { ChatPage } from "./ChatPage";
-import type { ChatMessageResponse } from "../features/chat/types/chat";
+import type { ChatMessageResponse, ChatNotificationResponse } from "../features/chat/types/chat";
 
 const mocks = vi.hoisted(() => {
   let onMessageHandler: ((message: ChatMessageResponse) => void) | null = null;
+  let onNotificationHandler: ((notification: ChatNotificationResponse) => void) | null = null;
   let onConnectStateChangeHandler: ((connected: boolean) => void) | null = null;
 
   const publishMock = vi.fn();
@@ -20,10 +21,11 @@ const mocks = vi.hoisted(() => {
   });
   const connectChatSocketMock = vi.fn((params: {
     onMessage: (message: ChatMessageResponse) => void;
-    onNotification: (notification: unknown) => void;
+    onNotification: (notification: ChatNotificationResponse) => void;
     onConnectStateChange: (connected: boolean) => void;
   }) => {
     onMessageHandler = params.onMessage;
+    onNotificationHandler = params.onNotification;
     onConnectStateChangeHandler = params.onConnectStateChange;
     params.onConnectStateChange(true);
     return {
@@ -38,6 +40,10 @@ const mocks = vi.hoisted(() => {
 
   const setConnected = (connected: boolean) => {
     onConnectStateChangeHandler?.(connected);
+  };
+
+  const triggerNotification = (notification: ChatNotificationResponse) => {
+    onNotificationHandler?.(notification);
   };
 
   return {
@@ -57,6 +63,7 @@ const mocks = vi.hoisted(() => {
     deactivateMock,
     triggerMessage,
     setConnected,
+    triggerNotification,
   };
 });
 
@@ -87,7 +94,7 @@ vi.mock("../features/chat/hooks/useMarkChatRoomAsReadMutation", () => ({
 vi.mock("../features/chat/socket/chatSocketClient", () => ({
   connectChatSocket: (args: unknown) => mocks.connectChatSocketMock(args as {
     onMessage: (message: ChatMessageResponse) => void;
-    onNotification: (notification: unknown) => void;
+    onNotification: (notification: ChatNotificationResponse) => void;
     onConnectStateChange: (connected: boolean) => void;
   }),
 }));
@@ -244,6 +251,52 @@ describe("ChatPage smoke checklist", () => {
     mocks.setConnected(true);
     await waitFor(() => {
       expect(screen.getByText("실시간 연결됨")).toBeTruthy();
+    });
+  });
+
+  it("SMOKE-CHAT-004: 방 입장 시 unread 뱃지와 알림센터 메시지가 즉시 정리된다", async () => {
+    mocks.roomsQueryMock.mockReturnValue({
+      data: [
+        {
+          roomId: 1,
+          type: "DIRECT",
+          name: null,
+          participantUserIds: [1, 2],
+          lastMessage: "새 메시지",
+          lastMessageAt: "2026-03-24T00:00:00",
+          unreadCount: 1,
+        },
+      ],
+      isLoading: false,
+      isError: false,
+      error: null,
+      refetch: mocks.refetchMock,
+    });
+
+    render(
+      <MemoryRouter>
+        <ChatPage />
+      </MemoryRouter>,
+    );
+
+    mocks.triggerNotification({
+      type: "NEW_MESSAGE",
+      roomId: 1,
+      message: "읽지 않은 새 메시지",
+      createdAt: "2026-03-24T12:00:00",
+    });
+
+    await waitFor(() => {
+      expect(screen.getByText("읽지 않은 새 메시지")).toBeTruthy();
+      expect(screen.getByText("알림 센터 · unread 1")).toBeTruthy();
+    });
+
+    fireEvent.click(screen.getByText(/room-1/).closest("button") as HTMLButtonElement);
+
+    await waitFor(() => {
+      expect(screen.queryByText("읽지 않은 새 메시지")).toBeNull();
+      expect(screen.queryByText("알림 센터 · unread 1")).toBeNull();
+      expect(mocks.markReadMutateMock).toHaveBeenCalledWith(1, expect.any(Object));
     });
   });
 });

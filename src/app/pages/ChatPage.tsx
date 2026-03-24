@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Client } from "@stomp/stompjs";
 import styled from "styled-components";
 import { Link } from "react-router-dom";
@@ -20,8 +20,34 @@ import type {
 } from "../features/chat/types/chat";
 
 const Root = styled.div`
+  width: min(100%, 480px);
+  margin: 0 auto;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background: color-mix(in oklab, var(--color-surface) 92%, var(--color-bg));
+  box-shadow: var(--shadow-2);
+  min-height: min(90dvh, 920px);
+  max-height: min(92dvh, 940px);
+  aspect-ratio: 9 / 19;
+  padding: 14px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+
+  @media (max-width: 640px) {
+    width: 100%;
+    min-height: 82dvh;
+    border-radius: var(--radius-md);
+  }
+`;
+
+const ScrollArea = styled.div`
+  min-height: 0;
+  overflow: auto;
   display: grid;
-  gap: 14px;
+  gap: 12px;
+  padding-right: 2px;
 `;
 
 const TopBar = styled.div`
@@ -54,10 +80,6 @@ const Layout = styled.div`
   display: grid;
   gap: 12px;
   grid-template-columns: 1fr;
-
-  @media (min-width: 980px) {
-    grid-template-columns: 320px 1fr;
-  }
 `;
 
 const Panel = styled.section`
@@ -66,6 +88,12 @@ const Panel = styled.section`
   background: var(--color-surface);
   box-shadow: var(--shadow-1);
   padding: 14px;
+`;
+
+const ChatPanel = styled(Panel)`
+  min-height: 320px;
+  display: flex;
+  flex-direction: column;
 `;
 
 const SectionTitle = styled.h3`
@@ -161,8 +189,10 @@ const MessageList = styled.ul`
   padding: 0;
   display: grid;
   gap: 8px;
-  max-height: 460px;
+  min-height: 220px;
+  max-height: 46dvh;
   overflow: auto;
+  flex: 1;
 `;
 
 const MessageItem = styled.li`
@@ -200,9 +230,11 @@ export function ChatPage() {
   const [liveMessages, setLiveMessages] = useState<ChatMessageResponse[]>([]);
   const [isSocketConnected, setIsSocketConnected] = useState(false);
   const [notifications, setNotifications] = useState<ChatNotificationResponse[]>([]);
+  const [locallyReadRoomIds, setLocallyReadRoomIds] = useState<Set<number>>(new Set());
 
   const socketClientRef = useRef<Client | null>(null);
   const refetchRoomsRef = useRef<() => Promise<unknown>>(async () => undefined);
+  const markReadRoomRef = useRef<(roomId: number) => void>(() => undefined);
 
   const accessToken = localStorage.getItem("accessToken") ?? "";
 
@@ -218,14 +250,57 @@ export function ChatPage() {
     () => rooms.find((room) => room.roomId === selectedRoomId),
     [rooms, selectedRoomId],
   );
-  const unreadTotal = useMemo(
-    () => rooms.reduce((sum, room) => sum + (room.unreadCount ?? 0), 0),
-    [rooms],
+
+  const clearRoomNotifications = (roomId: number) => {
+    setNotifications((prev) => prev.filter((n) => !(n.type === "NEW_MESSAGE" && n.roomId === roomId)));
+  };
+
+  const markRoomAsRead = useCallback(
+    (roomId: number) => {
+      setLocallyReadRoomIds((prev) => {
+        const next = new Set(prev);
+        next.add(roomId);
+        return next;
+      });
+      clearRoomNotifications(roomId);
+      markReadMutation.mutate(roomId, {
+        onSuccess: () => {
+          refetchRoomsRef.current();
+        },
+      });
+    },
+    [markReadMutation],
   );
+
+  const effectiveUnreadByRoomId = useMemo(() => {
+    const map = new Map<number, number>();
+    rooms.forEach((room) => {
+      map.set(room.roomId, locallyReadRoomIds.has(room.roomId) ? 0 : room.unreadCount);
+    });
+    return map;
+  }, [locallyReadRoomIds, rooms]);
+
+  const unreadTotal = useMemo(
+    () => rooms.reduce((sum, room) => sum + (effectiveUnreadByRoomId.get(room.roomId) ?? 0), 0),
+    [effectiveUnreadByRoomId, rooms],
+  );
+
+  const visibleNotifications = useMemo(() => {
+    const unreadRoomIds = new Set(
+      rooms
+        .filter((r) => (effectiveUnreadByRoomId.get(r.roomId) ?? 0) > 0)
+        .map((r) => r.roomId),
+    );
+    return notifications.filter((n) => n.type === "INVITE" || unreadRoomIds.has(n.roomId));
+  }, [effectiveUnreadByRoomId, notifications, rooms]);
 
   useEffect(() => {
     refetchRoomsRef.current = roomsQuery.refetch;
   }, [roomsQuery.refetch]);
+
+  useEffect(() => {
+    markReadRoomRef.current = markRoomAsRead;
+  }, [markRoomAsRead]);
 
   const realtimeMessages = useMemo(() => {
     const history = messagesQuery.data?.content ?? [];
@@ -243,10 +318,22 @@ export function ChatPage() {
       onConnectStateChange: setIsSocketConnected,
       onMessage: (message) => {
         setLiveMessages((prev) => (prev.some((item) => item.id === message.id) ? prev : [...prev, message]));
+        if (selectedRoomId === message.roomId) {
+          clearRoomNotifications(message.roomId);
+          markReadRoomRef.current(message.roomId);
+        }
       },
       onNotification: (notification) => {
         if (notification.type === "NEW_MESSAGE" && notification.roomId === selectedRoomId) {
           return;
+        }
+        if (notification.type === "NEW_MESSAGE") {
+          setLocallyReadRoomIds((prev) => {
+            if (!prev.has(notification.roomId)) return prev;
+            const next = new Set(prev);
+            next.delete(notification.roomId);
+            return next;
+          });
         }
         setNotifications((prev) => [notification, ...prev].slice(0, 8));
         refetchRoomsRef.current();
@@ -265,7 +352,8 @@ export function ChatPage() {
   const enterRoom = (room: ChatRoomListResponse) => {
     setSelectedRoomId(room.roomId);
     setLiveMessages([]);
-    markReadMutation.mutate(room.roomId, { onSuccess: () => roomsQuery.refetch() });
+    clearRoomNotifications(room.roomId);
+    markReadRoomRef.current(room.roomId);
   };
 
   const handleCreateDirect = async () => {
@@ -314,7 +402,8 @@ export function ChatPage() {
       }),
     });
     setMessageInput("");
-    markReadMutation.mutate(selectedRoomId, { onSuccess: () => roomsQuery.refetch() });
+    markReadRoomRef.current(selectedRoomId);
+    clearRoomNotifications(selectedRoomId);
   };
 
   return (
@@ -327,25 +416,25 @@ export function ChatPage() {
             {isSocketConnected ? "실시간 연결됨" : "연결 중/끊김"}
           </StatusChip>
         </TopBar>
-
-        <Panel>
-          <SectionTitle>알림 센터 {unreadTotal > 0 ? `· unread ${unreadTotal}` : ""}</SectionTitle>
-          {notifications.length ? (
-            <NotificationList>
-              {notifications.map((n, idx) => (
-                <NotificationItem key={`${n.roomId}-${n.createdAt}-${idx}`}>
-                  <strong>{n.type === "INVITE" ? "초대 알림" : "새 메시지"}</strong> · room #{n.roomId}
-                  <div>{n.message}</div>
-                </NotificationItem>
-              ))}
-            </NotificationList>
-          ) : (
-            <EmptyState message="새 알림이 없습니다." />
-          )}
-        </Panel>
-
-        <Layout>
+        <ScrollArea>
           <Panel>
+            <SectionTitle>알림 센터 {unreadTotal > 0 ? `· unread ${unreadTotal}` : ""}</SectionTitle>
+            {visibleNotifications.length ? (
+              <NotificationList>
+                {visibleNotifications.map((n, idx) => (
+                  <NotificationItem key={`${n.roomId}-${n.createdAt}-${idx}`}>
+                    <strong>{n.type === "INVITE" ? "초대 알림" : "새 메시지"}</strong> · room #{n.roomId}
+                    <div>{n.message}</div>
+                  </NotificationItem>
+                ))}
+              </NotificationList>
+            ) : (
+              <EmptyState message="새 알림이 없습니다." />
+            )}
+          </Panel>
+
+          <Layout>
+            <Panel>
             <SectionTitle>채팅방</SectionTitle>
 
             <FieldRow>
@@ -389,7 +478,9 @@ export function ChatPage() {
                       <RoomButton type="button" onClick={() => enterRoom(room)} $active={room.roomId === selectedRoomId}>
                         <RoomMeta>
                           <strong>{room.type === "DIRECT" ? "1:1" : "GROUP"} · {room.name ?? `room-${room.roomId}`}</strong>
-                          {room.unreadCount > 0 ? <Badge>{room.unreadCount}</Badge> : null}
+                          {(effectiveUnreadByRoomId.get(room.roomId) ?? 0) > 0 ? (
+                            <Badge>{effectiveUnreadByRoomId.get(room.roomId) ?? 0}</Badge>
+                          ) : null}
                         </RoomMeta>
                         <div>{room.lastMessage ?? "메시지 없음"}</div>
                       </RoomButton>
@@ -400,10 +491,10 @@ export function ChatPage() {
                 <EmptyState message="참여 중인 채팅방이 없습니다." />
               )
             ) : null}
-          </Panel>
+            </Panel>
 
-          <Panel>
-            <SectionTitle>{selectedRoom ? `채팅방 #${selectedRoom.roomId}` : "채팅방을 선택하세요"}</SectionTitle>
+            <ChatPanel>
+              <SectionTitle>{selectedRoom ? `채팅방 #${selectedRoom.roomId}` : "채팅방을 선택하세요"}</SectionTitle>
 
             {selectedRoom?.type === "GROUP" ? (
               <FieldRow>
@@ -457,8 +548,9 @@ export function ChatPage() {
             ) : (
               <EmptyState message="좌측에서 채팅방을 선택해 주세요." />
             )}
-          </Panel>
-        </Layout>
+            </ChatPanel>
+          </Layout>
+        </ScrollArea>
       </Root>
     </PageShell>
   );
