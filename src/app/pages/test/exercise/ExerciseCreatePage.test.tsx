@@ -21,11 +21,11 @@ vi.mock("react-router-dom", async () => {
   };
 });
 
-vi.mock("../features/exercise/hooks/useBodyDetailPartListQuery", () => ({
+vi.mock("../../../features/exercise/hooks/useBodyDetailPartListQuery", () => ({
   useBodyDetailPartListQuery: () => mocks.useBodyDetailPartListQueryMock(),
 }));
 
-vi.mock("../features/exercise/hooks/useCreateExerciseMutation", () => ({
+vi.mock("../../../features/exercise/hooks/useCreateExerciseMutation", () => ({
   useCreateExerciseMutation: () => mocks.useCreateExerciseMutationMock(),
 }));
 

@@ -17,6 +17,7 @@ import { WorkoutCreatePage } from "./pages/test/workout/WorkoutCreatePage";
 import { WorkoutDetailPage } from "./pages/test/workout/WorkoutDetailPage";
 import MyTestGround from "./pages/test/MyTestGround";
 import TestHomePage from "./pages/test/TestHomePage";
+import { ChatPage } from "./pages/ChatPage";
 
 export const router = createBrowserRouter([
   {
@@ -30,6 +31,7 @@ export const router = createBrowserRouter([
       { path: "/me", element: <MyPage /> },
       { path: "/me/inbody", element: <InBodyRecordPage /> },
       { path: "/me/settings", element: <SettingsPage /> },
+      { path: "/chat", element: <ChatPage /> },
 
 
       { path: "/test/home", element: <TestHomePage /> },
