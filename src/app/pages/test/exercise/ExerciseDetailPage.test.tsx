@@ -8,7 +8,7 @@ const mocks = vi.hoisted(() => ({
   useExerciseDetailQueryMock: vi.fn(),
 }));
 
-vi.mock("../features/exercise/hooks/useExerciseDetailQuery", () => ({
+vi.mock("../../../features/exercise/hooks/useExerciseDetailQuery", () => ({
   useExerciseDetailQuery: (id: number) => mocks.useExerciseDetailQueryMock(id),
 }));
 

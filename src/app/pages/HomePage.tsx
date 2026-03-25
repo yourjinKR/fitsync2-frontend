@@ -40,6 +40,7 @@ export function HomePage() {
       </Header>
       <p>Vite + React + TS + styled-components baseline</p>
       <Nav>
+        <Link to="/chat">실시간 채팅</Link>
         <Link to="/test/exercises">운동 목록</Link>
         <Link to="/test/exercises/new">운동 생성</Link>
         <Link to="/test/workouts">운동 기록 목록</Link>
